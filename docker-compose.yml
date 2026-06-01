@@ -1,14 +1,26 @@
+# Docker Compose : décrit les services dont l'app a besoin en local.
+# Ici, uniquement la base de données. On lance tout avec : docker-compose up -d
+version: "3.9"
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16            # version figée = environnement reproductible
+    container_name: anama-postgres
     environment:
-      POSTGRES_DB: codex
-      POSTGRES_USER: codex
-      POSTGRES_PASSWORD: codex
+      POSTGRES_DB: anama          # nom de la base créée au démarrage
+      POSTGRES_USER: anama        # utilisateur
+      POSTGRES_PASSWORD: anama    # mot de passe (OK en local ; jamais en prod)
     ports:
-      - "5432:5432"
+      # "port_machine : port_conteneur". On utilise 5433 côté machine pour
+      # éviter un conflit avec un autre Postgres déjà sur 5432.
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data   # persiste les données entre redémarrages
+    healthcheck:                  # Docker teste vraiment que la base répond
+      test: ["CMD-SHELL", "pg_isready -U anama -d anama"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres_data:
+  postgres_data:                  # volume nommé, géré par Docker

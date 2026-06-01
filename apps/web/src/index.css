@@ -1,0 +1,3 @@
+/* Importe tout Tailwind CSS v4. Une seule ligne suffit : ensuite on style
+   directement dans le JSX avec des classes utilitaires (ex. className="p-4"). */
+@import "tailwindcss";

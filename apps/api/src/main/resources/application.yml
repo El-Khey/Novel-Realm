@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: anama-api
+
+  # ── Connexion à la base PostgreSQL ──────────────────────────────
+  # On utilise des variables d'environnement avec une valeur par défaut :
+  #   ${VAR:defaut}  →  prend VAR si elle existe, sinon "defaut".
+  # Comme ça, aucun secret n'est codé en dur, et on pourra surcharger
+  # ces valeurs en production sans toucher au code.
+  datasource:
+    url: jdbc:postgresql://localhost:5433/anama   # port 5433 (voir docker-compose)
+    username: ${DB_USER:anama}
+    password: ${DB_PASSWORD:anama}
+
+  # ── JPA / Hibernate (la couche objet ↔ base) ───────────────────
+  jpa:
+    hibernate:
+      # validate = Hibernate VÉRIFIE que la base correspond aux entités,
+      # mais ne la modifie JAMAIS. C'est Flyway qui crée/fait évoluer le schéma.
+      ddl-auto: validate
+    # Désactive l'"Open Session In View" (un anti-pattern). On chargera les
+    # données explicitement dans la couche service. (On en reparlera.)
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true        # logs SQL lisibles pendant le dev
+
+  # ── Flyway : migrations de schéma versionnées ──────────────────
+  # Au démarrage, Flyway exécute les scripts de src/main/resources/db/migration
+  # dans l'ordre (V1__..., V2__...). Pour l'instant le dossier est vide : normal.
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+# Logs : on affiche le SQL généré par Hibernate (utile pour apprendre/déboguer).
+logging:
+  level:
+    org.hibernate.SQL: debug
