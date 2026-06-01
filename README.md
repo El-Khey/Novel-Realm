@@ -120,6 +120,8 @@ Each milestone is independently demoable.
 - ~~**M0 — Tooling & skeleton.**~~ ✅ Postgres via Docker, Spring Boot (Gradle)
   project, Vite app, `.gitignore`.
 - ~~**M1 — Full-stack hello world.**~~ ✅ `GET /api/ping` rendered by React (CORS).
+- ~~**Infra — Dockerized two-mode setup.**~~ ✅ `make dev` / `make prod` run the
+  whole stack (db + api + web) in containers; brought forward from M7.
 - **M2 — First entity + Flyway + seed.** `Novel`, migrations, `GET /api/novels`.
 - **M3 — Library page.** React grid consuming the API.
 - **M4 — Relations & detail.** `Chapter`, `Genre`, novel detail page.
@@ -134,24 +136,36 @@ user accounts · advanced search · recommendations.
 
 ---
 
-## Getting started (local development)
+## Getting started (with Docker)
 
-> Prerequisites: **Java 21**, **Node 20+**, **Docker** (+ `docker-compose`).
+Everything runs in Docker, so the only prerequisites are **Docker** (with
+`docker-compose`) and **make** — no need to install Java or Node locally.
 
 ```bash
-# 1. Start the database (PostgreSQL, exposed on host port 5433)
-docker-compose up -d
+git clone <repo> && cd Anama
 
-# 2. Run the backend  →  http://localhost:8080
-apps/api/gradlew -p apps/api bootRun
+make dev      # start db + api + web in hot-reload mode (background)
+              # → App: http://localhost:5173   API: http://localhost:8080
 
-# 3. Run the frontend  →  http://localhost:5173
-npm install --prefix apps/web
-npm run dev --prefix apps/web
+make logs     # follow logs (Ctrl+C stops following, not the app)
+make down     # stop everything
 ```
 
 Open http://localhost:5173 — you should see the app connect to the API.
 
-> **Note on the database port:** Postgres is exposed on host port **5433**
-> (not the default 5432) to avoid conflicts with other local Postgres
-> instances. The backend connects there via `apps/api/.../application.yml`.
+There are **two modes**, both driven by the `Makefile`:
+
+| Command | Mode | What it does |
+|---------|------|--------------|
+| `make dev` | development | Source mounted in containers, **hot-reload** (Vite HMR; `make restart-api` to apply backend changes). |
+| `make prod` | production | Frozen images: a Spring `.jar` + the front bundle served by nginx. |
+
+Run `make help` for the full list of commands.
+
+> **Two notes:** (1) Postgres is exposed on host port **5433** (not 5432) to
+> avoid conflicts with other local Postgres instances. (2) Docker mode and
+> hand-run local servers are mutually exclusive on ports 8080/5173 — pick one.
+
+> 📖 **Want to understand *how* and *why* the whole setup works** (Docker,
+> Gradle, compose, the Makefile)? See the detailed walkthrough (in French):
+> [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
