@@ -1,0 +1,7 @@
+# Évite d'envoyer ces dossiers dans le contexte de build (et d'écraser le
+# node_modules de l'image avec celui de la machine hôte).
+node_modules
+dist
+dist-ssr
+.git
+*.log

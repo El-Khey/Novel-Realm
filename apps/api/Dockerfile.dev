@@ -1,0 +1,13 @@
+# =====================================================================
+#  Dockerfile de DÉVELOPPEMENT pour l'API.
+#  Ici on NE copie PAS le code : docker-compose.dev.yml monte le dossier
+#  source en volume. On lance `gradlew bootRun`, qui compile et démarre
+#  Spring. Combiné aux volumes, on peut modifier le code sans reconstruire
+#  l'image (un `make restart-api` relance l'app avec le nouveau code).
+# =====================================================================
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+
+# Le code et le cache Gradle arrivent par volumes (voir docker-compose.dev.yml).
+EXPOSE 8080
+CMD ["./gradlew", "bootRun", "--no-daemon"]

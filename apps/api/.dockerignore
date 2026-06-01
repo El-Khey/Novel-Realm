@@ -1,0 +1,7 @@
+# Évite d'envoyer ces dossiers (lourds/inutiles) dans le contexte de build Docker.
+build/
+.gradle/
+bin/
+.idea/
+*.iml
+HELP.md

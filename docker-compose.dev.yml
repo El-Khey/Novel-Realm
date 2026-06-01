@@ -1,0 +1,33 @@
+# =====================================================================
+#  Surcharge de DÉVELOPPEMENT (hot-reload).
+#  S'utilise EN PLUS du fichier de base :
+#     docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+#  (le Makefile le fait pour toi avec `make dev`).
+#
+#  Ce qui change vs la base :
+#   - on construit avec les Dockerfile.dev (serveurs de dev, pas les images
+#     de prod) ;
+#   - on monte le code source en VOLUME → toute modif est visible dans le
+#     conteneur sans reconstruire l'image.
+# =====================================================================
+version: "2.4"
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./apps/api:/app           # le code source (modifs visibles direct)
+      - gradle_cache:/root/.gradle # cache des dépendances Gradle (sinon re-téléchargé à chaque fois)
+
+  web:
+    build:
+      dockerfile: Dockerfile.dev
+    environment:
+      - VITE_USE_POLLING=true     # active la détection de fichiers en polling (Docker/WSL2)
+    volumes:
+      - ./apps/web:/app           # le code source (HMR)
+      - /app/node_modules         # garde le node_modules de l'IMAGE (pas celui de l'hôte)
+
+volumes:
+  gradle_cache:

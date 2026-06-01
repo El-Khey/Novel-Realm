@@ -8,7 +8,11 @@ spring:
   # Comme ça, aucun secret n'est codé en dur, et on pourra surcharger
   # ces valeurs en production sans toucher au code.
   datasource:
-    url: jdbc:postgresql://localhost:5433/anama   # port 5433 (voir docker-compose)
+    # Host et port paramétrables : en local on attaque localhost:5433 (le port
+    # exposé par docker-compose), mais quand l'API tourne ELLE-MÊME dans Docker
+    # elle doit joindre le conteneur "postgres" sur son port interne 5432.
+    # docker-compose surcharge DB_HOST/DB_PORT en conséquence.
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/anama
     username: ${DB_USER:anama}
     password: ${DB_PASSWORD:anama}
 

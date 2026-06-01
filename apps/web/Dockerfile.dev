@@ -1,0 +1,16 @@
+# =====================================================================
+#  Dockerfile de DÉVELOPPEMENT pour le front.
+#  On installe les dépendances dans l'image, puis on lance le serveur de
+#  dev Vite. Le code source est monté en volume (docker-compose.dev.yml),
+#  donc toute modif est rechargée à chaud (HMR), sans reconstruire l'image.
+#  On écoute sur le port 80 pour rester cohérent avec le mode prod (nginx).
+# =====================================================================
+FROM node:22-alpine
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+# Le code source arrive par volume au lancement.
+EXPOSE 80
+CMD ["npm", "run", "dev", "--", "--host", "--port", "80"]
