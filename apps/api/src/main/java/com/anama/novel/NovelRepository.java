@@ -1,5 +1,6 @@
 package com.anama.novel;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -12,4 +13,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *   <Novel, Long> = entité gérée = Novel ; type de sa clé primaire = Long.
  */
 public interface NovelRepository extends JpaRepository<Novel, Long> {
+
+    // Requête dérivée : SELECT ... WHERE external_id = ? LIMIT 1.
+    // Utilisée par le seed pour retrouver un roman par son slug NovelFire.
+    Optional<Novel> findFirstByExternalId(String externalId);
 }
