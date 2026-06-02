@@ -16,6 +16,10 @@ services:
   api:
     build:
       dockerfile: Dockerfile.dev
+    environment:
+      # Active le profil Spring "dev" : déclenche le seed de données de test
+      # (NovelDevSeeder) et tout réglage spécifique au développement.
+      SPRING_PROFILES_ACTIVE: dev
     volumes:
       - ./apps/api:/app           # le code source (modifs visibles direct)
       - gradle_cache:/root/.gradle # cache des dépendances Gradle (sinon re-téléchargé à chaque fois)
