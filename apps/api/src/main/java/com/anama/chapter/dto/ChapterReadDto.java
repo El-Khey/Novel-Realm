@@ -1,6 +1,6 @@
 package com.anama.chapter.dto;
 
-import com.anama.chapter.ContentFormat;
+import com.anama.chapter.domain.ContentFormat;
 
 /**
  * Le chapitre COMPLET pour la lecture : métadonnées + le texte.

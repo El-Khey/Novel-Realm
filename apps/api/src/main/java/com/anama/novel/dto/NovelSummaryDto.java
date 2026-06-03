@@ -1,6 +1,6 @@
 package com.anama.novel.dto;
 
-import com.anama.novel.NovelStatus;
+import com.anama.novel.domain.NovelStatus;
 
 /**
  * Vue "légère" d'un novel, pour la grille de la bibliothèque.

@@ -1,7 +1,7 @@
 package com.anama.novel.dto;
 
-import com.anama.novel.NovelStatus;
-import com.anama.novel.SourceSite;
+import com.anama.novel.domain.NovelStatus;
+import com.anama.novel.domain.SourceSite;
 
 /**
  * Vue "complète" d'un novel, pour la page de détail.
