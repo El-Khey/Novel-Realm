@@ -19,21 +19,18 @@ spring:
   # ── JPA / Hibernate (la couche objet ↔ base) ───────────────────
   jpa:
     hibernate:
-      # validate = Hibernate VÉRIFIE que la base correspond aux entités,
-      # mais ne la modifie JAMAIS. C'est Flyway qui crée/fait évoluer le schéma.
-      ddl-auto: validate
+      # none = Hibernate ne crée NI ne modifie NI ne vérifie le schéma.
+      # C'est nous qui gérons le schéma à la main, via les scripts SQL du
+      # dossier db/init/ (exécutés au démarrage du conteneur Postgres).
+      # Plus tard, quand on aura des entités, on pourra repasser en "validate"
+      # pour que Hibernate vérifie que la base correspond aux entités.
+      ddl-auto: none
     # Désactive l'"Open Session In View" (un anti-pattern). On chargera les
     # données explicitement dans la couche service. (On en reparlera.)
     open-in-view: false
     properties:
       hibernate:
         format_sql: true        # logs SQL lisibles pendant le dev
-
-  # ── Flyway : migrations de schéma versionnées ──────────────────
-  # Au démarrage, Flyway exécute les scripts de src/main/resources/db/migration
-  # dans l'ordre (V1__..., V2__...). Pour l'instant le dossier est vide : normal.
-  flyway:
-    enabled: true
 
 server:
   port: 8080

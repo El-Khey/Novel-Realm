@@ -25,6 +25,10 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data   # persiste les données
+      # Scripts SQL d'init : tout .sql ici est exécuté automatiquement par
+      # Postgres à la PREMIÈRE création de la base (volume vide). C'est notre
+      # remplacement de Flyway : un schéma géré à la main, en SQL simple.
+      - ./db/init:/docker-entrypoint-initdb.d
     healthcheck:                  # Docker teste vraiment que la base répond
       test: ["CMD-SHELL", "pg_isready -U anama -d anama"]
       interval: 5s

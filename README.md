@@ -36,7 +36,7 @@ novels, open one, read its chapters, and resume where you left off.
 | Frontend | **React + TypeScript + Tailwind CSS** | React is the dominant UI library; TypeScript gives type safety; Tailwind keeps styling fast and consistent. |
 | Build/dev tool (front) | **Vite** | Fast, modern dev server and bundler. |
 | Database | **PostgreSQL** | A robust relational database — our data (novels, chapters, genres) is highly relational. |
-| Migrations | **Flyway** | Versioned, reproducible schema changes. A professional habit from day one. |
+| Schema | **Plain SQL init scripts** (`db/init/`) | Simple, explicit schema managed by hand, run automatically by Postgres on first boot. No migration tool until we actually need one. |
 | Infrastructure | **Docker Compose** | Reproducible environment — `docker-compose up` gives anyone the same database. |
 
 We deliberately keep the toolbox small and add things only when a real need
@@ -122,7 +122,7 @@ Each milestone is independently demoable.
 - ~~**M1 — Full-stack hello world.**~~ ✅ `GET /api/ping` rendered by React (CORS).
 - ~~**Infra — Dockerized two-mode setup.**~~ ✅ `make dev` / `make prod` run the
   whole stack (db + api + web) in containers; brought forward from M7.
-- **M2 — First entity + Flyway + seed.** `Novel`, migrations, `GET /api/novels`.
+- **M2 — First entity + SQL schema + seed.** `Novel`, `db/init/` SQL script, `GET /api/novels`.
 - **M3 — Library page.** React grid consuming the API.
 - **M4 — Relations & detail.** `Chapter`, `Genre`, novel detail page.
 - **M5 — Reader.** Read a chapter, navigate prev/next.

@@ -1,0 +1,16 @@
+-- =====================================================================
+--  Script d'initialisation de la base Anama (PostgreSQL).
+--
+--  Ce fichier (et tous les .sql de ce dossier) est exécuté AUTOMATIQUEMENT
+--  par le conteneur Postgres, UNE SEULE FOIS : à la toute première création
+--  de la base (quand le volume de données est vide).
+--
+--  → Pour relancer ces scripts depuis zéro : `make clean` (supprime le
+--    volume), puis `make dev` / `make db`.
+--
+--  Convention : on préfixe par un numéro (01_, 02_, ...) car les fichiers
+--  sont exécutés dans l'ordre alphabétique.
+--
+--  Pour l'instant : aucune table. On repart propre. On ajoutera les
+--  CREATE TABLE ici (ou dans des fichiers suivants) au fur et à mesure.
+-- =====================================================================

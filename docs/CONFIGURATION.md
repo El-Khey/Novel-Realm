@@ -233,10 +233,8 @@ java {
 
 dependencies {
     implementation '...starter-data-jpa'      // JPA / Hibernate (objets ↔ base)
-    implementation '...starter-flyway'         // migrations de schéma
     implementation '...starter-validation'     // validation des entrées
     implementation '...starter-webmvc'         // serveur web + REST
-    implementation 'org.flywaydb:flyway-database-postgresql'
     developmentOnly '...spring-boot-devtools'  // redémarrage auto en dev (exclu de la prod)
     runtimeOnly 'org.postgresql:postgresql'    // le driver pour parler à PostgreSQL
     testImplementation '...'                   // dépendances utilisées seulement par les tests
@@ -281,31 +279,34 @@ La syntaxe `${VAR:défaut}` veut dire : « utilise la variable d'environnement
 
 Aucun secret n'est codé en dur dans le code : c'est une bonne habitude pro.
 
-### `ddl-auto: validate` + Flyway
+### `ddl-auto: none` + scripts SQL d'init
 
 ```yaml
 jpa:
   hibernate:
-    ddl-auto: validate
-flyway:
-  enabled: true
+    ddl-auto: none
 ```
 
 C'est **le** point d'architecture à retenir :
 
-- **Flyway** crée et fait évoluer le schéma de la base, via des scripts SQL
-  versionnés (`V1__...sql`, `V2__...sql`) dans `src/main/resources/db/migration/`.
-- **Hibernate** est en `validate` : il **vérifie** que la base correspond aux
-  entités Java, mais ne la **modifie jamais**.
+- **Le schéma est géré à la main**, en SQL simple, dans les fichiers `.sql` du
+  dossier [`db/init/`](../db/init/) (à la racine du projet). Postgres les exécute
+  automatiquement, **une seule fois**, à la première création de la base (voir le
+  montage `/docker-entrypoint-initdb.d` dans `docker-compose.yml`).
+- **Hibernate** est en `none` : il ne crée, ne modifie ni ne vérifie le schéma.
+  C'est nous qui décidons de tout via le SQL.
 
 Pourquoi pas `ddl-auto: update` (où Hibernate modifie la base tout seul) ? Parce
-que c'est imprévisible et non reproductible. Avec Flyway, **chaque changement de
-schéma est un fichier dans Git**, rejoué à l'identique partout. C'est la pratique
-professionnelle.
+que c'est imprévisible et non reproductible. En écrivant nous-mêmes le SQL,
+**chaque changement de schéma est un fichier dans Git**, lisible et rejouable.
 
-> Pour l'instant le dossier `db/migration/` est vide → au démarrage Flyway écrit
-> « No migrations found ». C'est **normal** : on créera la première migration en
-> M2.
+> Plus tard, quand on aura des entités Java, on pourra repasser en
+> `ddl-auto: validate` : Hibernate vérifiera alors que la base (créée par nos
+> scripts SQL) correspond bien aux entités, sans jamais la modifier.
+
+> Pour relancer les scripts d'init depuis une base vierge : `make clean` (supprime
+> le volume Postgres), puis `make dev` ou `make db`. Les scripts ne se rejouent
+> **pas** sur une base déjà existante.
 
 ### `open-in-view: false`
 
