@@ -5,7 +5,10 @@
 # =====================================================================
 
 # La commande compose et les combinaisons de fichiers pour chaque mode.
-COMPOSE := docker-compose
+# "-p novelrealm" fixe le NOM DE PROJET Compose : il sert de préfixe aux
+# conteneurs, volumes et réseau (novelrealm_postgres_data, etc.). Sans lui,
+# Compose prendrait le nom du dossier courant — on le fige donc explicitement.
+COMPOSE := docker-compose -p novelrealm
 DEV     := -f docker-compose.yml -f docker-compose.dev.yml
 PROD    := -f docker-compose.yml
 
@@ -16,7 +19,7 @@ PROD    := -f docker-compose.yml
 
 help:  ## Affiche cette aide
 	@echo ""
-	@echo "  Anama — commandes Docker"
+	@echo "  Novel Realm — commandes Docker"
 	@echo "  ------------------------"
 	@echo "  make dev          Mode DEV (hot-reload, code monté en volume) — en arrière-plan"
 	@echo "  make prod         Mode PROD (images figées) — en arrière-plan"

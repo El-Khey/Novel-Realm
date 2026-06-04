@@ -1,5 +1,5 @@
 -- =====================================================================
---  Script d'initialisation de la base Anama (PostgreSQL).
+--  Script d'initialisation de la base Novel Realm (PostgreSQL).
 --
 --  Ce fichier (et tous les .sql de ce dossier) est exécuté AUTOMATIQUEMENT
 --  par le conteneur Postgres, UNE SEULE FOIS : à la toute première création
@@ -14,3 +14,12 @@
 --  Pour l'instant : aucune table. On repart propre. On ajoutera les
 --  CREATE TABLE ici (ou dans des fichiers suivants) au fur et à mesure.
 -- =====================================================================
+
+Create Table IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    pseudo VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL
+);

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: anama-api
+    name: novelrealm-api
 
   # ── Connexion à la base PostgreSQL ──────────────────────────────
   # On utilise des variables d'environnement avec une valeur par défaut :
@@ -12,9 +12,9 @@ spring:
     # exposé par docker-compose), mais quand l'API tourne ELLE-MÊME dans Docker
     # elle doit joindre le conteneur "postgres" sur son port interne 5432.
     # docker-compose surcharge DB_HOST/DB_PORT en conséquence.
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/anama
-    username: ${DB_USER:anama}
-    password: ${DB_PASSWORD:anama}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/novelrealm
+    username: ${DB_USER:novelrealm}
+    password: ${DB_PASSWORD:novelrealm}
 
   # ── JPA / Hibernate (la couche objet ↔ base) ───────────────────
   jpa:

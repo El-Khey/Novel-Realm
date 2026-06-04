@@ -1,4 +1,4 @@
-# Configuration & initialisation d'Anama — le guide complet (en français)
+# Configuration & initialisation de Novel Realm — le guide complet (en français)
 
 > Ce document explique **chaque pièce** de la config du projet, et surtout le
 > *pourquoi*. Il est écrit pour quelqu'un qui débute sur Docker, Gradle et
@@ -21,12 +21,12 @@
 
 ## 1. Vue d'ensemble du projet
 
-Anama est un **monorepo** : le backend et le frontend vivent dans le même dépôt,
+Novel Realm est un **monorepo** : le backend et le frontend vivent dans le même dépôt,
 côte à côte. Ça simplifie le développement (un seul `git clone`, une seule
 config Docker) tant qu'on est une petite équipe.
 
 ```
-Anama/
+novel-realm/
 ├── apps/
 │   ├── api/                 → backend Spring Boot (l'API REST, en Java)
 │   │   ├── build.gradle         (déclare les dépendances et la version de Java)
@@ -265,9 +265,9 @@ Fichier [apps/api/src/main/resources/application.yml](../apps/api/src/main/resou
 
 ```yaml
 datasource:
-  url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/anama
-  username: ${DB_USER:anama}
-  password: ${DB_PASSWORD:anama}
+  url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/novelrealm
+  username: ${DB_USER:novelrealm}
+  password: ${DB_PASSWORD:novelrealm}
 ```
 
 La syntaxe `${VAR:défaut}` veut dire : « utilise la variable d'environnement
@@ -410,7 +410,7 @@ Pour ne pas reperdre du temps dessus plus tard :
 Pré-requis : **Docker** et **make** (rien d'autre — ni Java, ni Node à installer).
 
 ```bash
-git clone <repo> && cd Anama
+git clone <repo> && cd novel-realm
 
 make dev      # démarre base + api + web en mode hot-reload
               # → App : http://localhost:5173   API : http://localhost:8080

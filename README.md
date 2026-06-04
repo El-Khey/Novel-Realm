@@ -1,10 +1,10 @@
-# Anama
+# Novel Realm
 
 > A local-first reader for Light Novels — built as a learning project.
 
 ## What is this?
 
-Anama is a personal project to build a clean, modern application for reading
+Novel Realm is a personal project to build a clean, modern application for reading
 Light Novels. It is **not** a race to ship features: the real goal is to
 **become a better developer** — to understand *why* each decision is made, learn
 solid engineering practices, and make real architecture choices.
@@ -12,8 +12,9 @@ solid engineering practices, and make real architecture choices.
 The first version focuses on doing **one thing well**: browse a library of
 novels, open one, read its chapters, and resume where you left off.
 
-> Internal note: this repository was bootstrapped under the name "Codex". We are
-> standardizing on **Anama** going forward (database, packages, config).
+> Internal note: this repository was previously named "Anama". We are
+> standardizing on **Novel Realm** going forward — displayed name "Novel Realm",
+> machine identifier `novelrealm` (database, packages, containers, config).
 
 ---
 
@@ -75,7 +76,7 @@ appears.
 This is a **monorepo**: backend and frontend live side by side.
 
 ```
-Anama/
+novel-realm/
 ├── apps/
 │   ├── api/    → Spring Boot backend (REST API)
 │   └── web/    → React + TypeScript frontend
@@ -142,7 +143,7 @@ Everything runs in Docker, so the only prerequisites are **Docker** (with
 `docker-compose`) and **make** — no need to install Java or Node locally.
 
 ```bash
-git clone <repo> && cd Anama
+git clone <repo> && cd novel-realm
 
 make dev      # start db + api + web in hot-reload mode (background)
               # → App: http://localhost:5173   API: http://localhost:8080
