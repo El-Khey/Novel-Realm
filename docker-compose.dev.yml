@@ -17,8 +17,8 @@ services:
     build:
       dockerfile: Dockerfile.dev
     environment:
-      # Active le profil Spring "dev" : déclenche le seed de données de test
-      # (NovelDevSeeder) et tout réglage spécifique au développement.
+      # Active le profil Spring "dev" : réservé aux réglages spécifiques au
+      # développement (ex. un futur seed de données de test).
       SPRING_PROFILES_ACTIVE: dev
     volumes:
       - ./apps/api:/app           # le code source (modifs visibles direct)
