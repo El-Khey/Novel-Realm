@@ -7,6 +7,8 @@ import com.novelrealm.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,7 +20,7 @@ public class UserController {
     }
     
     @PostMapping
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponse> register(@RequestBody @Valid RegisterRequest request) {
         User user = userService.register(
                 request.pseudo(),
                 request.email(),
@@ -31,5 +33,31 @@ public class UserController {
                 user.getCreatedAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> findAll() {
+        List<UserResponse> body = userService.findAll().stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getPseudo(),
+                        user.getEmail(),
+                        user.getCreatedAt()))
+                .toList();
+
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> findById(@PathVariable Long id) {
+        User user = userService.findById(id);
+
+        UserResponse body = new UserResponse(
+                user.getId(),
+                user.getPseudo(),
+                user.getEmail(),
+                user.getCreatedAt());
+
+        return ResponseEntity.ok(body);
     }
 }

@@ -3,8 +3,10 @@ package com.novelrealm.service;
 import org.springframework.stereotype.Service;
 
 import com.novelrealm.model.User;
+import com.novelrealm.exception.UserNotFoundException;
 import com.novelrealm.repository.UserRepository;
 import com.novelrealm.exception.EmailAlreadyUsedException;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -23,6 +25,14 @@ public class UserService {
 
         User user = new User(pseudo, email, password);
         return userRepository.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     // public void Login(String email, String password) {
