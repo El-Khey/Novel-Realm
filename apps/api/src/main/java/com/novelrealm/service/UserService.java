@@ -2,7 +2,7 @@ package com.novelrealm.service;
 
 import org.springframework.stereotype.Service;
 
-import com.novelrealm.models.User;
+import com.novelrealm.model.User;
 import com.novelrealm.repository.UserRepository;
 
 @Service

@@ -1,4 +1,4 @@
-package com.novelrealm.models;
+package com.novelrealm.model;
 
 
 import jakarta.persistence.Column;
