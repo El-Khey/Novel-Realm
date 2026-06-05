@@ -1,29 +1,33 @@
 package com.novelrealm.service;
 
+import com.novelrealm.exception.EmailAlreadyUsedException;
+import com.novelrealm.exception.UserNotFoundException;
+import com.novelrealm.model.User;
+import com.novelrealm.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.novelrealm.model.User;
-import com.novelrealm.exception.UserNotFoundException;
-import com.novelrealm.repository.UserRepository;
-import com.novelrealm.exception.EmailAlreadyUsedException;
 import java.util.List;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder; 
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder; 
     }
 
-    public User register(String pseudo, String email, String password) {
-        // règle métier : email unique
+    public User register(String pseudo, String email, String rawPassword) {
         if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyUsedException(email); // Exception personnalisée pour gérer ce cas d'erreur spécifique
+            throw new EmailAlreadyUsedException(email);
         }
 
-        User user = new User(pseudo, email, password);
+        String hashedPassword = passwordEncoder.encode(rawPassword); // ← le hashage
+
+        User user = new User(pseudo, email, hashedPassword); // ← on stocke le hash
         return userRepository.save(user);
     }
 
@@ -32,13 +36,18 @@ public class UserService {
     }
 
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    // public void Login(String email, String password) {
-    //     Optional<User> user = userRepository.findByEmail(email);
-    //     if (user == null || !user.get().getPassword().equals(password)) {
-    //         throw new IllegalStateException("Email ou mot de passe incorrect");
-    //     }
-    // }
+    public User login(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException());
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+
+        return user;
+    }
 }
