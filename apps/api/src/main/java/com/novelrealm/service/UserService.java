@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.novelrealm.model.User;
 import com.novelrealm.repository.UserRepository;
+import com.novelrealm.exception.EmailAlreadyUsedException;
 
 @Service
 public class UserService {
@@ -17,7 +18,7 @@ public class UserService {
     public User register(String pseudo, String email, String password) {
         // règle métier : email unique
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalStateException("Cet email est déjà utilisé");
+            throw new EmailAlreadyUsedException(email); // Exception personnalisée pour gérer ce cas d'erreur spécifique
         }
 
         User user = new User(pseudo, email, password);
