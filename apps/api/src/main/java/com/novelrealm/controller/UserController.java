@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok(body);
     }
 
-
+    // Un endpoint pour récupérer les infos de l'utilisateur connecté (pour le header, etc.)
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(Authentication authentication) {
         // Si on arrive ici, c'est que le filtre a validé le cookie → on EST connecté.

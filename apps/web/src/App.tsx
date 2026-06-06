@@ -1,12 +1,28 @@
-// Front volontairement minimal : on repart de zéro.
-// Plus de routeur, plus de pages, plus d'appels API pour l'instant —
-// juste de quoi vérifier que le front démarre. On le construira au fur
-// et à mesure, tranquillement.
-export default function App() {
+import { useAuth } from "./features/auth/AuthContext";
+
+function App() {
+  const { user, loading, login, logout } = useAuth();
+
+  if (loading) return <p>Chargement…</p>;
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-2">
-      <h1 className="text-3xl font-bold">Novel Realm</h1>
-      <p className="text-gray-500">Front réinitialisé — on repart propre.</p>
-    </main>
-  )
+    <div>
+      <h1>NovelRealm</h1>
+      {user ? (
+        <>
+          <p>Connecté en tant que {user.pseudo} ({user.email})</p>
+          <button onClick={() => logout()}>Se déconnecter</button>
+        </>
+      ) : (
+        <>
+          <p>Pas connecté.</p>
+          <button onClick={() => login("clean@test.com", "secret123")}>
+            Se connecter (test)
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
+
+export default App;

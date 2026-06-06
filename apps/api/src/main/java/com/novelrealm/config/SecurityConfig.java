@@ -30,6 +30,7 @@ public class SecurityConfig {
             HttpSecurity http,
             SecurityContextRepository securityContextRepository) throws Exception {
         http
+            .cors(cors -> {})                                               // on active la configuration CORS définie dans CorsConfig
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -39,8 +40,8 @@ public class SecurityConfig {
                 .securityContextRepository(securityContextRepository)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()   // public
-                .anyRequest().authenticated()                  // tout le reste : connexion requise
+                .requestMatchers("/api/auth/**").permitAll()    // public
+                .anyRequest().authenticated()                               // tout le reste : connexion requise
             );
         return http.build();
     }
