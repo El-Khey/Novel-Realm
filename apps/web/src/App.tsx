@@ -1,4 +1,4 @@
-import { useAuth } from "./features/auth/AuthContext";
+import { useAuth } from "./features/auth/useAuth";
 
 function App() {
   const { user, loading, login, logout } = useAuth();

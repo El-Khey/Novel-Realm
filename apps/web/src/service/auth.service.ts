@@ -1,49 +1,65 @@
+// ── Types ──────────────────────────────────────────────────────────
+
+interface User {
+  id: number;
+  pseudo: string;
+  email: string;
+}
+
+interface AuthResponse {
+  user: User;
+}
+
+interface ErrorBody {
+  message?: string;
+}
+
+interface RequestOptions extends Omit<RequestInit, "headers"> {
+  headers?: Record<string, string>;
+}
+
+
 const BASE_URL = "http://localhost:8080/api";
 
-// Helper interne : fait le fetch avec les bonnes options PARTOUT.
-// credentials: "include" = "navigateur, envoie/accepte les cookies même cross-origin"
-async function request(path, options = {}) {
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T | null> {
   const response = await fetch(BASE_URL + path, {
     ...options,
-    credentials: "include",                  // ← LE point crucial pour la session
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
     },
   });
 
-  // Si le serveur répond une erreur (4xx/5xx), on la transforme en exception JS.
   if (!response.ok) {
-    // On essaie de lire le corps JSON d'erreur (ton ErrorResponse), sinon message générique.
-    const error = await response.json().catch(() => ({ message: "Erreur réseau" }));
+    const error: ErrorBody = await response.json().catch(() => ({ message: "Erreur réseau" }));
     throw new Error(error.message || "Erreur");
   }
 
-  // 204 No Content (le logout) n'a pas de corps → on ne tente pas de le parser.
   if (response.status === 204) return null;
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
-// Une fonction par endpoint. Le composant React appelle ça, sans connaître les détails fetch.
-export function login(email, password) {
-  return request("/auth/login", {
+
+export function login(email: string, password: string): Promise<AuthResponse | null> {
+  return request<AuthResponse>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
-export function register(pseudo, email, password) {
-  return request("/auth/register", {
+export function register(pseudo: string, email: string, password: string): Promise<AuthResponse | null> {
+  return request<AuthResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify({ pseudo, email, password }),
   });
 }
 
-export function logout() {
-  return request("/auth/logout", { method: "POST" });
+export function logout(): Promise<null> {
+  return request<never>("/auth/logout", { method: "POST" }) as Promise<null>;
 }
 
-export function me() {
-  return request("/users/me");   // GET par défaut
+export function me(): Promise<User | null> {
+  return request<User>("/users/me");
 }
