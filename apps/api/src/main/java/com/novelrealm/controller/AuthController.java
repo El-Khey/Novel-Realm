@@ -67,4 +67,10 @@ public class AuthController {
 
         return ResponseEntity.ok(body);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        authenticationService.logout(httpRequest, httpResponse);
+        return ResponseEntity.noContent().build(); // 204 : "c'est fait, rien à renvoyer"
+    }
 }

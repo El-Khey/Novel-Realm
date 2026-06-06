@@ -4,6 +4,7 @@ import com.novelrealm.model.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,8 +40,8 @@ public class AuthenticationService {
     public void authenticate(User user, HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
                 user.getEmail(), // principal : qui est connecté
-                null,            // credentials : on ne garde pas le mot de passe
-                List.of()        // autorités/rôles : vide pour l'instant
+                null, // credentials : on ne garde pas le mot de passe
+                List.of() // autorités/rôles : vide pour l'instant
         );
 
         SecurityContext context = securityContextHolderStrategy.createEmptyContext();
@@ -49,4 +50,17 @@ public class AuthenticationService {
 
         securityContextRepository.saveContext(context, request, response);
     }
+    
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        //    Détruire la fiche côté serveur (le casier).
+        //    getSession(false) = "donne-moi la session SI elle existe, n'en crée pas".
+        //    (avec "true" il en créerait une juste pour la détruire → absurde)
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();   // la fiche est déchirée. Le ticket ne vaut plus rien.
+        }
+
+        // 2. Vider le "présent" (le ThreadLocal) pour la requête courante.
+        securityContextHolderStrategy.clearContext();
+}
 }

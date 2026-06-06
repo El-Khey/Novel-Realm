@@ -20,6 +20,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")               // toutes les routes /api/...
                 .allowedOrigins("http://localhost:5173") // l'origine du front Vite
-                .allowedMethods("GET", "POST", "PUT", "DELETE");
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowCredentials(true); // autoriser l'envoi des cookies (pour la session)
     }
 }
