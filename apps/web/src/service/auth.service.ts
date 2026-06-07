@@ -1,13 +1,8 @@
-// ── Types ──────────────────────────────────────────────────────────
-
-interface User {
+export interface User {
   id: number;
   pseudo: string;
   email: string;
-}
-
-interface AuthResponse {
-  user: User;
+  createdAt: string;
 }
 
 interface ErrorBody {
@@ -17,7 +12,6 @@ interface ErrorBody {
 interface RequestOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
 }
-
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -41,16 +35,15 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   return response.json() as Promise<T>;
 }
 
-
-export function login(email: string, password: string): Promise<AuthResponse | null> {
-  return request<AuthResponse>("/auth/login", {
+export function login(email: string, password: string): Promise<User | null> {
+  return request<User>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
 }
 
-export function register(pseudo: string, email: string, password: string): Promise<AuthResponse | null> {
-  return request<AuthResponse>("/auth/register", {
+export function register(pseudo: string, email: string, password: string): Promise<User | null> {
+  return request<User>("/auth/register", {
     method: "POST",
     body: JSON.stringify({ pseudo, email, password }),
   });

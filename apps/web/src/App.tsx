@@ -1,27 +1,26 @@
-import { useAuth } from "./features/auth/useAuth";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./features/auth/hooks/useAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoginPage from "./pages/LoginPage";
+import ProfilPage from "./pages/ProfilPage";
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
-  const { user, loading, login, logout } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) return <p>Chargement…</p>;
 
   return (
-    <div>
-      <h1>NovelRealm</h1>
-      {user ? (
-        <>
-          <p>Connecté en tant que {user.pseudo} ({user.email})</p>
-          <button onClick={() => logout()}>Se déconnecter</button>
-        </>
-      ) : (
-        <>
-          <p>Pas connecté.</p>
-          <button onClick={() => login("clean@test.com", "secret123")}>
-            Se connecter (test)
-          </button>
-        </>
-      )}
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/profil" element={<ProfilPage />} />
+      </Route>
+
+      <Route path="/" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
 

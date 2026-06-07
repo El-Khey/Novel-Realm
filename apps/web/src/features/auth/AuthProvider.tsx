@@ -1,6 +1,8 @@
 import { createContext } from "react";
 import { type ReactNode } from "react";
-import { useAuthState, type User } from "./useAuthState";
+import { type User } from "../../service/auth.service";
+import { useAuthState } from "./hooks/useAuthState";
+
 
 export type AuthContextType = {
     user: User | null;
