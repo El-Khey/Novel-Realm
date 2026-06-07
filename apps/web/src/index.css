@@ -1,3 +1,169 @@
 /* Importe tout Tailwind CSS v4. Une seule ligne suffit : ensuite on style
    directement dans le JSX avec des classes utilitaires (ex. className="p-4"). */
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/figtree";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens — adaptés de apps/web/DESIGN.md (analyse Binance).
+   On branche les variables sémantiques de shadcn (--primary, --background, …)
+   sur la palette Binance : jaune #fcd535 sur canvas quasi-noir #0b0e11.
+   :root = thème clair (surfaces transactionnelles)
+   .dark = thème sombre (marketing / produit — le look signature)
+--------------------------------------------------------------------------- */
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Figtree Variable', sans-serif;
+
+    /* Accents Binance exposés en utilitaires (bg-primary-active, text-up, …) */
+    --color-primary-active: var(--primary-active);
+    --color-up: var(--up);
+    --color-down: var(--down);
+
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+
+    /* Rayons resserrés (Binance : 6–12px). base 8px → md ≈ 6px, xl ≈ 11px */
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --radius: 0.5rem;
+
+    /* Light = surfaces transactionnelles (canvas-light #ffffff) */
+    --background: #ffffff;
+    --foreground: #181a20;            /* ink */
+    --card: #ffffff;
+    --card-foreground: #181a20;
+    --popover: #ffffff;
+    --popover-foreground: #181a20;
+
+    --primary: #fcd535;               /* Binance Yellow */
+    --primary-foreground: #181a20;    /* on-primary (noir sur jaune) */
+    --primary-active: #f0b90b;        /* press / hover plus saturé */
+
+    --secondary: #f5f5f5;             /* surface-strong-light */
+    --secondary-foreground: #181a20;
+    --muted: #fafafa;                 /* surface-soft-light */
+    --muted-foreground: #707a8a;      /* muted */
+    --accent: #f5f5f5;
+    --accent-foreground: #181a20;
+
+    --destructive: #f6465d;           /* trading-down (rouge) */
+    --up: #0ecb81;                    /* trading-up (vert) */
+    --down: #f6465d;                  /* trading-down (rouge) */
+
+    --border: #eaecef;                /* hairline-on-light */
+    --input: #eaecef;
+    --ring: #3b82f6;                  /* info-ring */
+
+    --chart-1: #fcd535;
+    --chart-2: #0ecb81;
+    --chart-3: #f6465d;
+    --chart-4: #2dbdb6;
+    --chart-5: #3b82f6;
+
+    --sidebar: #fafafa;
+    --sidebar-foreground: #181a20;
+    --sidebar-primary: #fcd535;
+    --sidebar-primary-foreground: #181a20;
+    --sidebar-accent: #f5f5f5;
+    --sidebar-accent-foreground: #181a20;
+    --sidebar-border: #eaecef;
+    --sidebar-ring: #3b82f6;
+}
+
+.dark {
+    /* Dark = look marketing signature (canvas-dark #0b0e11 + jaune) */
+    --background: #0b0e11;            /* canvas-dark */
+    --foreground: #eaecef;            /* body */
+    --card: #1e2329;                  /* surface-card-dark */
+    --card-foreground: #eaecef;
+    --popover: #1e2329;
+    --popover-foreground: #eaecef;
+
+    --primary: #fcd535;
+    --primary-foreground: #181a20;
+    --primary-active: #f0b90b;
+
+    --secondary: #2b3139;             /* surface-elevated-dark */
+    --secondary-foreground: #eaecef;
+    --muted: #2b3139;
+    --muted-foreground: #929aa5;      /* muted-strong (lisible sur noir) */
+    --accent: #2b3139;
+    --accent-foreground: #eaecef;
+
+    --destructive: #f6465d;
+    --up: #0ecb81;
+    --down: #f6465d;
+
+    --border: #2b3139;                /* hairline-on-dark */
+    --input: #2b3139;
+    --ring: #3b82f6;
+
+    --chart-1: #fcd535;
+    --chart-2: #0ecb81;
+    --chart-3: #f6465d;
+    --chart-4: #2dbdb6;
+    --chart-5: #3b82f6;
+
+    --sidebar: #1e2329;
+    --sidebar-foreground: #eaecef;
+    --sidebar-primary: #fcd535;
+    --sidebar-primary-foreground: #181a20;
+    --sidebar-accent: #2b3139;
+    --sidebar-accent-foreground: #eaecef;
+    --sidebar-border: #2b3139;
+    --sidebar-ring: #3b82f6;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
