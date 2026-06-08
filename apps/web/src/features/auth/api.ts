@@ -1,4 +1,4 @@
-import { request } from "@/api/http";
+import { request } from "@/lib/http";
 import type { User } from "./types";
 
 /** Points d'entrée HTTP de la feature auth. */

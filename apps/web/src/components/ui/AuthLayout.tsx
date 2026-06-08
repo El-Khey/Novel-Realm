@@ -1,53 +1,40 @@
+import { LogoIcon } from "@/components/ui/Logo";
+
 type AuthLayoutProps = {
     children: React.ReactNode;
 };
 
-function Logo() {
-    return (
-        <div className="flex items-center gap-2.5">
-            <span className="grid size-9 place-items-center rounded-md bg-primary text-lg font-bold text-primary-foreground">
-                N
-            </span>
-            <span className="text-lg font-semibold tracking-tight">NovelRealm</span>
-        </div>
-    );
-}
-
 /**
- * Shell d'authentification — look "marketing sombre" du design Binance :
- * canvas quasi-noir, accent jaune, panneau de marque à gauche + formulaire
- * à droite. Force le thème sombre via la classe `dark`.
+ * Shell d'authentification — layout centré et focalisé, thème sombre du design.
+ * En-tête de marque (logo + nom + accroche) au-dessus de la carte de formulaire,
+ * le tout centré sur le canvas quasi-noir. Pied de page discret pour ancrer le bas.
  */
 export default function AuthLayout({ children }: AuthLayoutProps) {
     return (
-        <div className="dark min-h-screen w-full bg-background text-foreground lg:grid lg:grid-cols-2">
-            {/* Panneau de marque (caché en mobile) */}
-            <aside className="relative hidden flex-col justify-between border-r border-border bg-background p-12 lg:flex">
-                <Logo />
+        <div className="dark flex min-h-screen flex-col bg-background text-foreground">
+            <main className="flex flex-1 items-center justify-center px-6 py-12">
+                <div className="w-full max-w-sm space-y-8">
+                    {/* En-tête de marque */}
+                    <header className="flex flex-col items-center gap-4 text-center">
+                        <LogoIcon className="h-12 w-12" />
+                        <div className="space-y-1.5">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                Novel<span className="text-primary">Realm</span>
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Découvrez des centaines de nouvelles histoires.
+                            </p>
+                        </div>
+                    </header>
 
-                <div className="space-y-5">
-                    <h1 className="text-5xl font-bold leading-[1.05] tracking-tight">
-                        Plonge dans des <span className="text-primary">mondes</span> infinis.
-                    </h1>
-                    <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                        Lis, écris et partage tes romans. Rejoins une communauté de
-                        lecteurs et d'auteurs et fais vivre tes histoires.
-                    </p>
-                </div>
-
-                <p className="text-xs text-muted-foreground">© 2026 NovelRealm. Tous droits réservés.</p>
-            </aside>
-
-            {/* Panneau formulaire */}
-            <main className="flex min-h-screen items-center justify-center bg-background p-6">
-                <div className="w-full max-w-sm">
-                    {/* Marque visible en mobile (le panneau de gauche est masqué) */}
-                    <div className="mb-8 lg:hidden">
-                        <Logo />
-                    </div>
+                    {/* Carte de formulaire (Login / Register) */}
                     {children}
                 </div>
             </main>
+
+            <footer className="px-6 py-8 text-center text-xs text-muted-foreground">
+                © 2026 NovelRealm. Tous droits réservés.
+            </footer>
         </div>
     );
 }
