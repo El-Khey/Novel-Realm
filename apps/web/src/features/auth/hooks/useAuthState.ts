@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
-import * as api from "../../../service/auth.service";
-import  { type User } from "../../../service/auth.service";
+import * as authApi from "@/features/auth/api";
+import type { User } from "@/features/auth/types";
+import type { AuthContextType } from "@/features/auth/context";
 
-export function useAuthState() {
+/**
+ * Source de vérité de la session : hydrate l'utilisateur courant au montage
+ * (via `me()`) et expose les actions qui modifient cet état (login/logout).
+ */
+export function useAuthState(): AuthContextType {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.me()
-            .then((u) => setUser(u))
+        authApi
+            .me()
+            .then(setUser)
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
     }, []);
 
     async function login(email: string, password: string) {
-        const u = await api.login(email, password);
-        setUser(u);
+        setUser(await authApi.login(email, password));
     }
 
     async function logout() {
-        await api.logout();
+        await authApi.logout();
         setUser(null);
     }
 

@@ -2,6 +2,17 @@ type AuthLayoutProps = {
     children: React.ReactNode;
 };
 
+function Logo() {
+    return (
+        <div className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-md bg-primary text-lg font-bold text-primary-foreground">
+                N
+            </span>
+            <span className="text-lg font-semibold tracking-tight">NovelRealm</span>
+        </div>
+    );
+}
+
 /**
  * Shell d'authentification — look "marketing sombre" du design Binance :
  * canvas quasi-noir, accent jaune, panneau de marque à gauche + formulaire
@@ -12,12 +23,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         <div className="dark min-h-screen w-full bg-background text-foreground lg:grid lg:grid-cols-2">
             {/* Panneau de marque (caché en mobile) */}
             <aside className="relative hidden flex-col justify-between border-r border-border bg-background p-12 lg:flex">
-                <div className="flex items-center gap-2.5">
-                    <span className="grid size-9 place-items-center rounded-md bg-primary text-lg font-bold text-primary-foreground">
-                        N
-                    </span>
-                    <span className="text-lg font-semibold tracking-tight">NovelRealm</span>
-                </div>
+                <Logo />
 
                 <div className="space-y-5">
                     <h1 className="text-5xl font-bold leading-[1.05] tracking-tight">
@@ -36,11 +42,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <main className="flex min-h-screen items-center justify-center bg-background p-6">
                 <div className="w-full max-w-sm">
                     {/* Marque visible en mobile (le panneau de gauche est masqué) */}
-                    <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-                        <span className="grid size-9 place-items-center rounded-md bg-primary text-lg font-bold text-primary-foreground">
-                            N
-                        </span>
-                        <span className="text-lg font-semibold tracking-tight">NovelRealm</span>
+                    <div className="mb-8 lg:hidden">
+                        <Logo />
                     </div>
                     {children}
                 </div>

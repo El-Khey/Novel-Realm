@@ -19,4 +19,13 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Primitives shadcn (vendored) : elles co-exportent leurs `variants`
+    // (buttonVariants, badgeVariants, …) à côté du composant — comportement
+    // attendu, incompatible avec la contrainte fast-refresh.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

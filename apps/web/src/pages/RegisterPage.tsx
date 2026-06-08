@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import * as api from "@/service/auth.service";
+import * as authApi from "@/features/auth/api";
 import FormError from "@/components/ui/FormError";
 import AuthLayout from "@/components/ui/AuthLayout";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export default function RegisterPage() {
         setError(null);
         setSubmitting(true);
         try {
-            await api.register(pseudo, email, password);
+            await authApi.register(pseudo, email, password);
             navigate("/login");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur inconnue");
