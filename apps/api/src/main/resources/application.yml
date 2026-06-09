@@ -3,15 +3,7 @@ spring:
     name: novelrealm-api
 
   # ── Connexion à la base PostgreSQL ──────────────────────────────
-  # On utilise des variables d'environnement avec une valeur par défaut :
-  #   ${VAR:defaut}  →  prend VAR si elle existe, sinon "defaut".
-  # Comme ça, aucun secret n'est codé en dur, et on pourra surcharger
-  # ces valeurs en production sans toucher au code.
   datasource:
-    # Host et port paramétrables : en local on attaque localhost:5433 (le port
-    # exposé par docker-compose), mais quand l'API tourne ELLE-MÊME dans Docker
-    # elle doit joindre le conteneur "postgres" sur son port interne 5432.
-    # docker-compose surcharge DB_HOST/DB_PORT en conséquence.
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/novelrealm
     username: ${DB_USER:novelrealm}
     password: ${DB_PASSWORD:novelrealm}
@@ -19,23 +11,28 @@ spring:
   # ── JPA / Hibernate (la couche objet ↔ base) ───────────────────
   jpa:
     hibernate:
-      # none = Hibernate ne crée NI ne modifie NI ne vérifie le schéma.
-      # C'est nous qui gérons le schéma à la main, via les scripts SQL du
-      # dossier db/init/ (exécutés au démarrage du conteneur Postgres).
-      # Plus tard, quand on aura des entités, on pourra repasser en "validate"
-      # pour que Hibernate vérifie que la base correspond aux entités.
       ddl-auto: none
-    # Désactive l'"Open Session In View" (un anti-pattern). On chargera les
-    # données explicitement dans la couche service. (On en reparlera.)
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true        # logs SQL lisibles pendant le dev
+        format_sql: true
+
+  # ── Envoi d'emails (SMTP Gmail) ────────────────────────────────
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8080
 
-# Logs : on affiche le SQL généré par Hibernate (utile pour apprendre/déboguer).
 logging:
   level:
     org.hibernate.SQL: debug

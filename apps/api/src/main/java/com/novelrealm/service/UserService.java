@@ -8,17 +8,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.novelrealm.exception.InvalidCredentialsException;
 
+
+
 import java.util.List;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; 
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder; 
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public User register(String pseudo, String email, String rawPassword) {
@@ -29,7 +33,15 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(rawPassword); // ← le hashage
 
         User user = new User(pseudo, email, hashedPassword); // ← on stocke le hash
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        
+        try {
+            emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getPseudo());
+        } catch (Exception e) {
+            // Log the error but don't fail the registration
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
+        return savedUser;
     }
 
     public List<User> findAll() {

@@ -20,24 +20,15 @@ services:
       POSTGRES_USER: novelrealm
       POSTGRES_PASSWORD: novelrealm
     ports:
-      # "port_machine : port_conteneur". 5433 côté machine pour éviter un
-      # conflit avec un autre Postgres déjà sur 5432.
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data   # persiste les données
-      # Scripts SQL d'init : tout .sql ici est exécuté automatiquement par
-      # Postgres à la PREMIÈRE création de la base (volume vide). C'est notre
-      # remplacement de Flyway : un schéma géré à la main, en SQL simple.
+      - postgres_data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
-    healthcheck:                  # Docker teste vraiment que la base répond
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U novelrealm -d novelrealm"]
       interval: 5s
       timeout: 5s
       retries: 5
-      # Délai de grâce au tout premier démarrage : sur un volume vierge,
-      # Postgres initialise le cluster PUIS exécute les scripts de db/init/.
-      # Pendant ce temps il n'accepte pas encore les connexions. Sans ce délai,
-      # le healthcheck pouvait épuiser ses essais et l'API abandonnait trop tôt.
       start_period: 30s
 
   # ── API Spring Boot ────────────────────────────────────────────
@@ -56,6 +47,9 @@ services:
       DB_PORT: 5432
       DB_USER: novelrealm
       DB_PASSWORD: novelrealm
+      # ── Identifiants SMTP (lus depuis le fichier .env, non commité) ──
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     ports:
       - "8080:8080"
 
@@ -68,9 +62,6 @@ services:
     depends_on:
       - api
     ports:
-      # Toujours exposé sur 5173 côté machine, dans les deux modes, pour que
-      # l'origine du navigateur reste http://localhost:5173 (cohérent avec la
-      # config CORS de l'API). Côté conteneur : 80 (nginx en prod, Vite en dev).
       - "5173:80"
 
 volumes:
