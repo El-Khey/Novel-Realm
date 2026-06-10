@@ -1,4 +1,4 @@
-import { request } from "@/lib/http";
+import { request, API_ORIGIN } from "@/lib/http";
 import type { User } from "./types";
 
 /** Points d'entrée HTTP de la feature auth. */
@@ -23,4 +23,13 @@ export async function logout(): Promise<void> {
 
 export function me(): Promise<User | null> {
     return request<User>("/users/me");
+}
+
+/**
+ * Connexion via Google (OAuth2). Redirection plein écran vers l'endpoint
+ * Spring Security du backend (hors préfixe `/api`) ; au retour, la session est
+ * posée via cookie et l'app ré-hydrate l'utilisateur au montage.
+ */
+export function loginWithGoogle(): void {
+    window.location.href = `${API_ORIGIN}/oauth2/authorization/google`;
 }

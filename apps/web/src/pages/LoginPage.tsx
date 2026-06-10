@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import FormError from "@/components/ui/FormError";
 import AuthLayout from "@/components/ui/AuthLayout";
+import AuthDivider from "@/components/ui/AuthDivider";
+import GoogleButton from "@/features/auth/components/GoogleButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,10 +37,6 @@ export default function LoginPage() {
         } finally {
             setSubmitting(false);
         }
-    }
-
-    function handleGoogleLogin() {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
     }
 
     return (
@@ -74,20 +72,21 @@ export default function LoginPage() {
                     <FormError message={error} />
                 </CardContent>
 
-                <CardFooter className="flex flex-col gap-3">
+                <CardFooter className="flex flex-col gap-4">
                     <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
                         {submitting ? "Connexion…" : "Se connecter"}
                     </Button>
+
+                    <AuthDivider />
+
+                    <GoogleButton label="Se connecter avec Google" />
+
                     <p className="text-sm text-muted-foreground">
                         Pas de compte ?{" "}
                         <Link to="/register" className="text-primary underline-offset-4 hover:underline">
                             Créer un compte
                         </Link>
                     </p>
-
-                    <Button onClick={handleGoogleLogin}>
-                        Se connecter avec Google
-                    </Button>
                 </CardFooter>
             </Card>
         </AuthLayout>

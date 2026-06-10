@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import * as authApi from "@/features/auth/api";
 import FormError from "@/components/ui/FormError";
 import AuthLayout from "@/components/ui/AuthLayout";
+import AuthDivider from "@/components/ui/AuthDivider";
+import GoogleButton from "@/features/auth/components/GoogleButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,10 +81,15 @@ export default function RegisterPage() {
                     <FormError message={error} />
                 </CardContent>
 
-                <CardFooter className="flex flex-col gap-3">
+                <CardFooter className="flex flex-col gap-4">
                     <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
                         {submitting ? "Création…" : "Créer mon compte"}
                     </Button>
+
+                    <AuthDivider />
+
+                    <GoogleButton label="S'inscrire avec Google" />
+
                     <p className="text-sm text-muted-foreground">
                         Déjà un compte ?{" "}
                         <Link to="/login" className="text-primary underline-offset-4 hover:underline">
