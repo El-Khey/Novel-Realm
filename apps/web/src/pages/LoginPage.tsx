@@ -37,6 +37,10 @@ export default function LoginPage() {
         }
     }
 
+    function handleGoogleLogin() {
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    }
+
     return (
         <AuthLayout>
             <Card className="w-full">
@@ -80,6 +84,10 @@ export default function LoginPage() {
                             Créer un compte
                         </Link>
                     </p>
+
+                    <Button onClick={handleGoogleLogin}>
+                        Se connecter avec Google
+                    </Button>
                 </CardFooter>
             </Card>
         </AuthLayout>

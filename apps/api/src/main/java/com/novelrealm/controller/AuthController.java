@@ -36,8 +36,9 @@ public class AuthController {
         User user = userService.register(
                 request.pseudo(),
                 request.email(),
-                request.password());
-        // On renvoie une réponse avec les données de l'utilisateur créé, sans le mot de passe pour prévoir la gestion de la session plus tard
+                request.password(),
+                User.AuthProvider.LOCAL); // ← inscription classique = compte LOCAL
+
         UserResponse body = new UserResponse(
                 user.getId(),
                 user.getPseudo(),

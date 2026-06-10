@@ -50,6 +50,9 @@ services:
       # ── Identifiants SMTP (lus depuis le fichier .env, non commité) ──
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # ── Identifiants Google OAuth2 (idem, depuis .env) ───────────────
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     ports:
       - "8080:8080"
 

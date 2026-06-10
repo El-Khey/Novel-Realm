@@ -23,6 +23,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	// devtools : en dev, redémarre l'app automatiquement quand les classes
 	// compilées changent (LiveReload). "developmentOnly" => exclu du jar de prod.
