@@ -35,9 +35,6 @@ public class User {
     @Column(nullable = false)
     private Instant updatedAt;
    
-    protected User() {
-    }
-
     public enum AuthProvider {
         LOCAL,
         GOOGLE
@@ -46,6 +43,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider provider;
+    
+    protected User() {}
 
     public User(String pseudo, String email, String password, AuthProvider provider) {
         this.pseudo = pseudo;

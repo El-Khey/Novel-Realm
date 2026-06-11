@@ -23,3 +23,14 @@ Create Table IF NOT EXISTS users (
     created_at TIMESTAMP NOT NULL,
     updated_at  TIMESTAMP NOT NULL
 );
+
+Create Table IF NOT EXISTS novels (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    cover_image_url VARCHAR(255),
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL
+);

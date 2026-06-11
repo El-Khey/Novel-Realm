@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import com.novelrealm.exception.InvalidCredentialsException;
 import com.novelrealm.model.User.AuthProvider;
 
-
-
 import java.util.List;
 
 @Service
