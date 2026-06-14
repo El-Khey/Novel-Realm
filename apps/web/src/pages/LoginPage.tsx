@@ -31,7 +31,7 @@ export default function LoginPage() {
         setSubmitting(true);
         try {
             await login(email, password);
-            navigate("/profil");
+            navigate("/novels");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur inconnue");
         } finally {

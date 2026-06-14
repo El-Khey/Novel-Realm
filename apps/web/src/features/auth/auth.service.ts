@@ -1,27 +1,28 @@
-import { request, API_ORIGIN } from "@/lib/http";
+import { request, requestNoContent, API_ORIGIN } from "@/lib/http";
 import type { User } from "./types";
 
 /** Points d'entrée HTTP de la feature auth. */
 
-export function login(email: string, password: string): Promise<User | null> {
+export function login(email: string, password: string): Promise<User> {
     return request<User>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
     });
 }
 
-export function register(pseudo: string, email: string, password: string): Promise<User | null> {
+export function register(pseudo: string, email: string, password: string): Promise<User> {
     return request<User>("/auth/register", {
         method: "POST",
         body: JSON.stringify({ pseudo, email, password }),
     });
 }
 
-export async function logout(): Promise<void> {
-    await request("/auth/logout", { method: "POST" });
+export function logout(): Promise<void> {
+    // 204 No Content → pas de corps à parser : on utilise requestNoContent.
+    return requestNoContent("/auth/logout", { method: "POST" });
 }
 
-export function me(): Promise<User | null> {
+export function me(): Promise<User> {
     return request<User>("/users/me");
 }
 

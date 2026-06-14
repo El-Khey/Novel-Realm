@@ -55,9 +55,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
         ErrorResponse error = new ErrorResponse(
-            HttpStatus.UNAUTHORIZED.value(),   // 401
-            ex.getMessage()
-    );
+                HttpStatus.UNAUTHORIZED.value(), // 401
+                ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
+    
+    @ExceptionHandler(NovelNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNovelNotFound(NovelNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), // 404
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
 }

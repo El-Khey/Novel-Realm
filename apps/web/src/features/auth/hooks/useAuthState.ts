@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import * as authApi from "@/features/auth/api";
+import * as authApi from "@/features/auth/auth.service";
 import type { User } from "@/features/auth/types";
 import type { AuthContextType } from "@/features/auth/context";
 

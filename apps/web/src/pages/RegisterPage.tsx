@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import * as authApi from "@/features/auth/api";
+import * as authApi from "@/features/auth/auth.service";
 import FormError from "@/components/ui/FormError";
 import AuthLayout from "@/components/ui/AuthLayout";
 import AuthDivider from "@/components/ui/AuthDivider";

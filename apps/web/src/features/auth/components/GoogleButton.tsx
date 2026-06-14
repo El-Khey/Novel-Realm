@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { loginWithGoogle } from "@/features/auth/api";
+import { loginWithGoogle } from "@/features/auth/auth.service";
 
 /** Logo Google officiel (4 couleurs, indépendant du thème). */
 function GoogleIcon() {

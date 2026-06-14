@@ -16,7 +16,6 @@ public class NovelService {
         this.novelRepository = novelRepository;
     }   
 
-    // mettre ca en optional si il n'y'a pas de novel dans la bdd ? ou pas necessaire 
     public List<Novel> findAll() {
         return this.novelRepository.findAll();
     }
