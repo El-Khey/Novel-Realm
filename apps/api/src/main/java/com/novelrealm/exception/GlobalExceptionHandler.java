@@ -67,5 +67,12 @@ public class GlobalExceptionHandler {
                 ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+    @ExceptionHandler(ChapterNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleChapterNotFound(ChapterNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), // 404
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 
 }

@@ -8,3 +8,11 @@ export interface Novel {
     status: "ONGOING" | "COMPLETED";
     createdAt: string;
 }
+
+/** Chapitre (version liste, sans contenu) — miroir de ChapterResponse côté API */
+export interface Chapter {
+    id: number;
+    novelId: number;
+    chapterNumber: number;
+    title: string;
+}

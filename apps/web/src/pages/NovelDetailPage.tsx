@@ -4,6 +4,7 @@ import { getNovel } from "@/features/novels/novel.service";
 import type { Novel } from "@/features/novels/types";
 import { NovelCover } from "@/features/novels/components/NovelCover";
 import { NOVEL_STATUS } from "@/features/novels/status";
+import { useChapters } from "@/features/novels/hooks/useChapters";
 import { ApiError } from "@/lib/http";
 import AppLayout from "@/components/ui/AppLayout";
 import { Badge } from "@/components/ui/badge";
@@ -72,34 +73,72 @@ function NovelDetail({ novel }: { novel: Novel }) {
     const status = NOVEL_STATUS[novel.status];
 
     return (
-        <div className="flex flex-col gap-8 sm:flex-row">
-            <NovelCover
-                title={novel.title}
-                coverImageUrl={novel.coverImageUrl}
-                className="w-48 shrink-0 rounded-xl ring-1 ring-foreground/10"
-            />
+        <div className="space-y-8">
+            <div className="flex flex-col gap-8 sm:flex-row">
+                <NovelCover
+                    title={novel.title}
+                    coverImageUrl={novel.coverImageUrl}
+                    className="w-48 shrink-0 rounded-xl ring-1 ring-foreground/10"
+                />
 
-            <div className="flex-1 space-y-4">
-                <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-4">
-                        <h1 className="text-2xl font-bold tracking-tight">{novel.title}</h1>
-                        <Badge variant={status.variant} className="shrink-0">
-                            {status.label}
-                        </Badge>
+                <div className="flex-1 space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-4">
+                            <h1 className="text-2xl font-bold tracking-tight">{novel.title}</h1>
+                            <Badge variant={status.variant} className="shrink-0">
+                                {status.label}
+                            </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">par {novel.author}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">par {novel.author}</p>
-                </div>
 
-                <div className="border-t border-border pt-4">
-                    <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Résumé
-                    </h2>
-                    <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
-                        {novel.description}
-                    </p>
+                    <div className="border-t border-border pt-4">
+                        <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Résumé
+                        </h2>
+                        <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
+                            {novel.description}
+                        </p>
+                    </div>
                 </div>
             </div>
+
+            <ChapterList novelId={novel.id} />
         </div>
+    );
+}
+
+function ChapterList({ novelId }: { novelId: number }) {
+    const { chapters, error } = useChapters(novelId);
+
+    return (
+        <section className="border-t border-border pt-6">
+            <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Chapitres
+            </h2>
+
+            {error ? (
+                <p className="text-sm text-destructive">Impossible de charger les chapitres : {error}</p>
+            ) : chapters === null ? (
+                <p className="text-sm text-muted-foreground">Chargement…</p>
+            ) : chapters.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun chapitre pour le moment.</p>
+            ) : (
+                <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
+                    {chapters.map((chapter) => (
+                        <li key={chapter.id}>
+                            <Link
+                                to={`/novels/${novelId}/chapters/${chapter.id}`}
+                                className="flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-secondary/50"
+                            >
+                                <span className="tabular-nums text-muted-foreground">{chapter.chapterNumber}</span>
+                                <span>{chapter.title}</span>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
     );
 }
 
