@@ -1,24 +1,11 @@
-import { useEffect, useState } from "react";
-import { getNovels } from "@/features/novels/novel.service";
-import type { Novel } from "@/features/novels/types";
+import { useNovels } from "@/features/novels/hooks/useNovels";
 import { NovelCard } from "@/features/novels/components/NovelCard";
 import AppLayout from "@/components/ui/AppLayout";
 
 const GRID = "grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4";
 
 export default function LibraryPage() {
-    const [novels, setNovels] = useState<Novel[] | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        let active = true;
-        getNovels()
-            .then((data) => active && setNovels(data))
-            .catch((e) => active && setError(e instanceof Error ? e.message : "Erreur inconnue"));
-        return () => {
-            active = false;
-        };
-    }, []);
+    const { novels, error } = useNovels();
 
     return (
         <AppLayout>
@@ -50,7 +37,6 @@ export default function LibraryPage() {
     );
 }
 
-/** Placeholders animés pendant le chargement (même grille que le contenu). */
 function LibrarySkeleton() {
     return (
         <div className={GRID}>
