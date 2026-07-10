@@ -26,6 +26,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "library_entry")
 @IdClass(LibraryEntryId.class)
+
 public class LibraryEntry {
 
     // Partie 1 de la clé : l'utilisateur propriétaire de cette entrée.
