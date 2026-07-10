@@ -67,7 +67,7 @@ export default function Navbar() {
             <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
                 {/* Gauche : logo + navigation (desktop) */}
                 <div className="flex items-center gap-6">
-                    <Link to="/novels" aria-label="Accueil">
+                    <Link to="/" aria-label="Accueil">
                         <Logo />
                     </Link>
                     <nav className="hidden items-center gap-1 md:flex">
