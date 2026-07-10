@@ -65,6 +65,13 @@ public class NovelIngestionService {
                 continue; // déjà en base → idempotent
             }
             ScrapedChapter sc = scraper.scrapeChapter(ref);
+            if (sc.content().isBlank()) {
+                // On n'enregistre PAS un chapitre vide : sinon l'idempotence le
+                // sauterait à jamais. Non enregistré = re-tenté au prochain run.
+                log.warn("  ! chapitre {} ignoré (contenu vide — page protégée ou sélecteur à revoir)",
+                        sc.chapterNumber());
+                continue;
+            }
             chapterRepository.save(new Chapter(novel, sc.chapterNumber(), sc.title(), sc.content()));
             imported++;
             log.info("  + chapitre {} — {}", sc.chapterNumber(), sc.title());
