@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- ──────────────────────────── Catalogue ─────────────────────────────
 CREATE TABLE IF NOT EXISTS novels (
     id              BIGSERIAL PRIMARY KEY,
+    slug            VARCHAR(255) UNIQUE,               -- identifiant source (scraping) ; clé d'idempotence
     title           VARCHAR(255) NOT NULL,
     author          VARCHAR(255) NOT NULL,
     description     TEXT NOT NULL,

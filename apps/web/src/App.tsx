@@ -4,6 +4,7 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import LibraryPage from "@/pages/LibraryPage";
 import NovelDetailPage from "@/pages/NovelDetailPage";
+import ChapterReaderPage from "@/pages/ChapterReaderPage";
 import ProfilPage from "@/pages/ProfilPage";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
                 <Route path="/novels" element={<LibraryPage />} />
                 <Route path="/novels/:id" element={<NovelDetailPage />} />
+                <Route path="/novels/:novelId/chapters/:chapterId" element={<ChapterReaderPage />} />
                 <Route path="/profil" element={<ProfilPage />} />
             </Route>
 

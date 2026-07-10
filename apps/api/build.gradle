@@ -25,6 +25,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	// Jsoup : fetch + parsing HTML pour l'ingestion (scraping) de romans.
+	implementation 'org.jsoup:jsoup:1.18.3'
+
 	// devtools : en dev, redémarre l'app automatiquement quand les classes
 	// compilées changent (LiveReload). "developmentOnly" => exclu du jar de prod.
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

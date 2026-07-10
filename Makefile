@@ -12,10 +12,13 @@ COMPOSE := docker-compose -p novelrealm
 DEV     := -f docker-compose.yml -f docker-compose.dev.yml
 PROD    := -f docker-compose.yml
 
+# Nombre max de chapitres importés par `make ingest` (surchargeable : MAX=...).
+MAX     ?= 50
+
 # Cible par défaut quand on tape juste `make` : afficher l'aide.
 .DEFAULT_GOAL := help
 
-.PHONY: help dev prod down logs ps db restart-api rebuild clean
+.PHONY: help dev prod down logs ps db restart-api rebuild clean ingest
 
 help:  ## Affiche cette aide
 	@echo ""
@@ -30,6 +33,7 @@ help:  ## Affiche cette aide
 	@echo "  make restart-api  Redémarre l'API (applique un changement back en dev)"
 	@echo "  make rebuild      Reconstruit les images dev sans cache"
 	@echo "  make clean        Arrête tout ET supprime les volumes (DONNÉES DB PERDUES)"
+	@echo "  make ingest SLUG=<slug> [MAX=50]   Importe un roman LightNovelWorld (one-shot)"
 	@echo ""
 	@echo "  App : http://localhost:5173   API : http://localhost:8080"
 	@echo ""
@@ -63,3 +67,19 @@ rebuild:  ## Reconstruit les images dev de zéro (sans cache)
 
 clean:  ## Arrête tout et SUPPRIME les volumes (efface la base !)
 	$(COMPOSE) $(DEV) down -v
+
+ingest:  ## Importe un roman LightNovelWorld (ex: make ingest SLUG=shadow-slave [MAX=100])
+	@test -n "$(SLUG)" || { echo "Usage : make ingest SLUG=<slug> [MAX=50]   (slug = .../novel/<slug>/)"; exit 1; }
+	@echo "Ingestion one-shot de '$(SLUG)' (max $(MAX) chapitres)…"
+	# L'API `dev` tourne déjà et tient les verrous Gradle. Pour coexister sans
+	# conflit, l'ingestion utilise des caches Gradle DÉDIÉS (un volume à elle) :
+	#   - GRADLE_USER_HOME=/gradle-ingest  → cache global (deps) séparé de /root/.gradle
+	#   - --project-cache-dir              → cache PROJET séparé de /app/.gradle (monté)
+	# Sans ça : "Timeout waiting to lock ... It is currently in use by another Gradle instance".
+	$(COMPOSE) $(DEV) run --rm \
+		-e SPRING_PROFILES_ACTIVE=dev,ingest \
+		-e NOVELREALM_INGESTION_SLUG=$(SLUG) \
+		-e NOVELREALM_INGESTION_MAX_CHAPTERS=$(MAX) \
+		-e GRADLE_USER_HOME=/gradle-ingest \
+		-v novelrealm_gradle_ingest:/gradle-ingest \
+		api ./gradlew bootRun --no-daemon --project-cache-dir /gradle-ingest/project-cache

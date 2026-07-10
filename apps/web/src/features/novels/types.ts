@@ -16,3 +16,13 @@ export interface Chapter {
     chapterNumber: number;
     title: string;
 }
+
+/** Chapitre (version détail, avec contenu) — miroir de ChapterDetailResponse */
+export interface ChapterDetail {
+    id: number;
+    novelId: number;
+    chapterNumber: number;
+    title: string;
+    content: string;
+    createdAt: string;
+}
