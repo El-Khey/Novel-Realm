@@ -1,12 +1,32 @@
-// Front volontairement minimal : on repart de zéro.
-// Plus de routeur, plus de pages, plus d'appels API pour l'instant —
-// juste de quoi vérifier que le front démarre. On le construira au fur
-// et à mesure, tranquillement.
-export default function App() {
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-2">
-      <h1 className="text-3xl font-bold">Novel Realm</h1>
-      <p className="text-gray-500">Front réinitialisé — on repart propre.</p>
-    </main>
-  )
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
+import LibraryPage from "@/pages/LibraryPage";
+import NovelDetailPage from "@/pages/NovelDetailPage";
+import ChapterReaderPage from "@/pages/ChapterReaderPage";
+import ProfilPage from "@/pages/ProfilPage";
+
+function App() {
+    return (
+        <Routes>
+            {/* Routes publiques — rendues immédiatement, sans attendre la session. */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Routes protégées — ProtectedRoute gère le chargement de la session. */}
+            <Route element={<ProtectedRoute />}>
+                <Route path="/novels" element={<LibraryPage />} />
+                <Route path="/novels/:id" element={<NovelDetailPage />} />
+                <Route path="/novels/:novelId/chapters/:chapterId" element={<ChapterReaderPage />} />
+                <Route path="/profil" element={<ProfilPage />} />
+            </Route>
+
+            {/* La bibliothèque est l'accueil de l'app ; toute route inconnue y mène. */}
+            <Route path="/" element={<Navigate to="/novels" replace />} />
+            <Route path="*" element={<Navigate to="/novels" replace />} />
+        </Routes>
+    );
 }
+
+export default App;

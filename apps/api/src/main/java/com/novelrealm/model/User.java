@@ -1,8 +1,10 @@
-package com.novelrealm.models;
+package com.novelrealm.model;
 
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,14 +19,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @Column(nullable = false)
     private String pseudo;
 
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false, updatable = false)
@@ -33,14 +35,22 @@ public class User {
     @Column(nullable = false)
     private Instant updatedAt;
    
-    protected User() {
+    public enum AuthProvider {
+        LOCAL,
+        GOOGLE
     }
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider provider;
+    
+    protected User() {}
 
-    public User(String pseudo, String email, String password) {
+    public User(String pseudo, String email, String password, AuthProvider provider) {
         this.pseudo = pseudo;
         this.email = email;
         this.password = password;
-
+        this.provider = provider;
     }
     
     @PrePersist
@@ -70,6 +80,10 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public AuthProvider getProvider() {
+        return provider;
     }
 
     public Instant getCreatedAt() {
