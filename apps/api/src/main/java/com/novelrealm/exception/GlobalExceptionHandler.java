@@ -75,4 +75,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(LibraryEntryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleLibraryEntryNotFound(LibraryEntryNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), // 404
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(LibraryEntryAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleLibraryEntryAlreadyExists(LibraryEntryAlreadyExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(), // 409
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }

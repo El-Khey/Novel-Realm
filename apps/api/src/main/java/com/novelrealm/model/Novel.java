@@ -49,7 +49,7 @@ public class Novel {
     @ManyToMany
     @JoinTable(
             name = "novel_genre",
-            joinColumns = @JoinColumn(name = "novel_id"),
+            joinColumns = @JoinColumn(name = "novel_id"), 
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new HashSet<>();
 

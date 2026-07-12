@@ -1,34 +1,45 @@
-import { useNovels } from "@/features/novels/hooks/useNovels";
-import { NovelCard } from "@/features/novels/components/NovelCard";
+import { Link } from "react-router-dom";
+import { useLibrary } from "@/features/library/hooks/useLibrary";
+import { LibraryEntryCard } from "@/features/library/components/LibraryEntryCard";
 import AppLayout from "@/components/ui/AppLayout";
 
 const GRID = "grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4";
 
 export default function LibraryPage() {
-    const { novels, error } = useNovels();
+    const { entries, error, remove } = useLibrary();
 
     return (
         <AppLayout>
             <div className="mx-auto max-w-6xl px-6 py-10">
                 <header className="mb-8">
-                    <h1 className="text-2xl font-bold tracking-tight">Bibliothèque</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Ma bibliothèque</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Découvrez des centaines de nouvelles histoires.
+                        Les romans que vous suivez.
                     </p>
                 </header>
 
                 {error ? (
                     <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                        Impossible de charger les romans : {error}
+                        Impossible de charger votre bibliothèque : {error}
                     </p>
-                ) : novels === null ? (
+                ) : entries === null ? (
                     <LibrarySkeleton />
-                ) : novels.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Aucun roman pour le moment.</p>
+                ) : entries.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                        Votre bibliothèque est vide.{" "}
+                        <Link to="/" className="text-primary underline-offset-4 hover:underline">
+                            Parcourez le catalogue
+                        </Link>{" "}
+                        pour y ajouter des romans.
+                    </p>
                 ) : (
                     <div className={GRID}>
-                        {novels.map((novel) => (
-                            <NovelCard key={novel.id} novel={novel} />
+                        {entries.map((entry) => (
+                            <LibraryEntryCard
+                                key={entry.novel.id}
+                                entry={entry}
+                                onRemove={remove}
+                            />
                         ))}
                     </div>
                 )}
