@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLibraryManager } from "@/features/library/hooks/useLibraryManager";
+import { useProgressSummary } from "@/features/progress/hooks/useProgressSummary";
 import { CategoryTabs, type ActiveTab } from "@/features/categories/components/CategoryTabs";
 import { CreateCategoryForm } from "@/features/categories/components/CreateCategoryForm";
 import { NovelWithMenu } from "@/features/library/components/NovelWithMenu";
@@ -27,6 +28,7 @@ export default function LibraryPage() {
         rename,
         removeCategory,
     } = manager;
+    const { remainingByNovel } = useProgressSummary();
 
     const [active, setActive] = useState<ActiveTab>("all");
     const [createOpen, setCreateOpen] = useState(false);
@@ -69,6 +71,7 @@ export default function LibraryPage() {
                         novel={novel}
                         libraryIds={libraryIds}
                         categories={categories}
+                        unreadCount={remainingByNovel.get(novel.id)}
                         onToggleLibrary={toggleLibrary}
                         onToggleCategory={toggleCategory}
                         onCreateCategory={createCategoryWithNovel}

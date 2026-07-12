@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.novelrealm.service.NovelService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 import com.novelrealm.dto.NovelResponse;
@@ -25,9 +26,13 @@ public class NovelController {
     }
 
 
+    // Catalogue : tous les romans, ou filtrés par genre si ?genreId= est fourni.
     @GetMapping
-    public ResponseEntity<List<NovelResponse>> findAll() {
-        List<NovelResponse> body = novelService.findAll().stream()
+    public ResponseEntity<List<NovelResponse>> findAll(@RequestParam(required = false) Long genreId) {
+        List<Novel> novels = (genreId != null)
+                ? novelService.findByGenre(genreId)
+                : novelService.findAll();
+        List<NovelResponse> body = novels.stream()
                 .map(novel -> new NovelResponse(
                         novel.getId(),
                         novel.getTitle(),

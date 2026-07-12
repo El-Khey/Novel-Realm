@@ -1,0 +1,89 @@
+package com.novelrealm.controller;
+
+import java.util.List;
+
+import com.novelrealm.dto.ChapterProgressResponse;
+import com.novelrealm.dto.MarkChapterReadRequest;
+import com.novelrealm.dto.NovelProgressSummary;
+import com.novelrealm.dto.SaveChapterPositionRequest;
+import com.novelrealm.model.ChapterProgress;
+import com.novelrealm.service.ChapterProgressService;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * API de la progression de lecture. Toujours implicitement « l'utilisateur
+ * connecté » (déduit du cookie de session).
+ */
+@RestController
+@RequestMapping("/api/progress")
+public class ChapterProgressController {
+
+    private final ChapterProgressService progressService;
+
+    public ChapterProgressController(ChapterProgressService progressService) {
+        this.progressService = progressService;
+    }
+
+    /** PUT /api/progress/chapters/{chapterId} — marque le chapitre lu / non lu. */
+    @PutMapping("/chapters/{chapterId}")
+    public ResponseEntity<ChapterProgressResponse> setRead(
+            @PathVariable Long chapterId,
+            @Valid @RequestBody MarkChapterReadRequest request,
+            Authentication authentication) {
+        ChapterProgress progress = progressService.setRead(
+                authentication.getName(), chapterId, request.read());
+        return ResponseEntity.ok(toResponse(progress));
+    }
+
+    /** GET /api/progress/novels/{novelId} — progression sur tous les chapitres du roman. */
+    @GetMapping("/novels/{novelId}")
+    public ResponseEntity<List<ChapterProgressResponse>> novelProgress(
+            @PathVariable Long novelId,
+            Authentication authentication) {
+        List<ChapterProgressResponse> body = progressService
+                .getNovelProgress(authentication.getName(), novelId)
+                .stream()
+                .map(ChapterProgressController::toResponse)
+                .toList();
+        return ResponseEntity.ok(body);
+    }
+
+    /** PUT /api/progress/chapters/{chapterId}/position — sauvegarde la position de reprise (%). */
+    @PutMapping("/chapters/{chapterId}/position")
+    public ResponseEntity<ChapterProgressResponse> savePosition(
+            @PathVariable Long chapterId,
+            @Valid @RequestBody SaveChapterPositionRequest request,
+            Authentication authentication) {
+        ChapterProgress progress = progressService.savePosition(
+                authentication.getName(), chapterId, request.percent());
+        return ResponseEntity.ok(toResponse(progress));
+    }
+
+    /** GET /api/progress/summary — total & lus par roman (chapitres restants côté front). */
+    @GetMapping("/summary")
+    public ResponseEntity<List<NovelProgressSummary>> summary(Authentication authentication) {
+        return ResponseEntity.ok(progressService.getSummary(authentication.getName()));
+    }
+
+    /**
+     * Entité → DTO. {@code getChapter().getId()} est sûr même en LAZY : lire
+     * l'identifiant d'un proxy n'entraîne pas son initialisation.
+     */
+    private static ChapterProgressResponse toResponse(ChapterProgress progress) {
+        return new ChapterProgressResponse(
+                progress.getChapter().getId(),
+                progress.isRead(),
+                progress.getScrollPosition(),
+                progress.getReadAt());
+    }
+}

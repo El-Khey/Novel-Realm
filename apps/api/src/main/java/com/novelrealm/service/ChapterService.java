@@ -2,6 +2,7 @@ package com.novelrealm.service;
 
 import com.novelrealm.model.Chapter;
 import com.novelrealm.repository.ChapterRepository;
+import com.novelrealm.dto.NovelChapterCount;
 import com.novelrealm.exception.ChapterNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,5 +23,10 @@ public class ChapterService {
     public Chapter findById(Long id) {
         return chapterRepository.findById(id)
                 .orElseThrow(() -> new ChapterNotFoundException(id));
+    }
+
+    /** Nombre total de chapitres par roman (pour le résumé de progression). */
+    public List<NovelChapterCount> countChaptersPerNovel() {
+        return chapterRepository.countChaptersPerNovel();
     }
 }

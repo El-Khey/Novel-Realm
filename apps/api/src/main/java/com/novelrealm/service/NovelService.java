@@ -19,10 +19,15 @@ public class NovelService {
     public List<Novel> findAll() {
         return this.novelRepository.findAll();
     }
-    
+
+    /** Romans d'un genre donné (pour le filtre du catalogue). */
+    public List<Novel> findByGenre(Long genreId) {
+        return this.novelRepository.findByGenres_Id(genreId);
+    }
+
     public Novel findById(Long id) {
         return novelRepository.findById(id)
-                .orElseThrow(() -> new NovelNotFoundException(id)); 
+                .orElseThrow(() -> new NovelNotFoundException(id));
     }
     
 }
