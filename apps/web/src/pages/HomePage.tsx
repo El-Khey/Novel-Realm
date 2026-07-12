@@ -1,18 +1,14 @@
 import { useNovels } from "@/features/novels/hooks/useNovels";
-import { useLibrary } from "@/features/library/hooks/useLibrary";
-import { NovelCard } from "@/features/novels/components/NovelCard";
-import { AddToLibraryButton } from "@/features/library/components/AddToLibraryButton";
+import { useLibraryManager } from "@/features/library/hooks/useLibraryManager";
+import { NovelWithMenu } from "@/features/library/components/NovelWithMenu";
 import AppLayout from "@/components/ui/AppLayout";
 
-// Page d'accueil : le catalogue de romans (tout ce que propose le site).
-// Chaque carte a un bouton « Ajouter à ma bibliothèque » ; la Bibliothèque
-// (page /novels) affiche ensuite ces romans suivis. Version simple/temporaire.
+// Page d'accueil : le catalogue de romans. Chaque carte porte un menu « Ajouter »
+// qui gère l'ajout à la bibliothèque ET le rangement dans les étagères.
 export default function HomePage() {
     const { novels, error } = useNovels();
-    const { entries, add } = useLibrary();
-
-    // Ids des romans déjà en bibliothèque → pour basculer le bouton sur « Ajouté ».
-    const addedIds = new Set((entries ?? []).map((e) => e.novel.id));
+    const { categories, libraryIds, toggleLibrary, toggleCategory, createCategoryWithNovel } =
+        useLibraryManager();
 
     return (
         <AppLayout>
@@ -35,15 +31,15 @@ export default function HomePage() {
                 ) : (
                     <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
                         {novels.map((novel) => (
-                            <div key={novel.id} className="relative">
-                                <NovelCard novel={novel} />
-                                <div className="absolute right-2 top-2 z-10">
-                                    <AddToLibraryButton
-                                        inLibrary={addedIds.has(novel.id)}
-                                        onAdd={() => add(novel.id)}
-                                    />
-                                </div>
-                            </div>
+                            <NovelWithMenu
+                                key={novel.id}
+                                novel={novel}
+                                libraryIds={libraryIds}
+                                categories={categories}
+                                onToggleLibrary={toggleLibrary}
+                                onToggleCategory={toggleCategory}
+                                onCreateCategory={createCategoryWithNovel}
+                            />
                         ))}
                     </div>
                 )}

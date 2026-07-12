@@ -1,0 +1,13 @@
+package com.novelrealm.exception;
+
+/**
+ * Levée quand une étagère demandée n'existe pas — ou n'appartient pas à
+ * l'utilisateur connecté (on ne distingue pas les deux, pour ne pas révéler
+ * l'existence des étagères d'autrui). → 404.
+ */
+public class CategoryNotFoundException extends RuntimeException {
+
+    public CategoryNotFoundException(Long id) {
+        super("Aucune étagère trouvée avec l'id " + id);
+    }
+}
