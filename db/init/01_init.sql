@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS chapters (
     title          VARCHAR(255) NOT NULL,
     content        TEXT NOT NULL,
     created_at     TIMESTAMP NOT NULL,                 -- "derniers chapitres" (Accueil)
-    updated_at     TIMESTAMP NOT NULL
+    updated_at     TIMESTAMP NOT NULL,
+    UNIQUE (novel_id, chapter_number)                  -- pas deux fois le même n° pour un roman
 );
 
 -- Genres : table de référence (Fantasy, Romance, …).

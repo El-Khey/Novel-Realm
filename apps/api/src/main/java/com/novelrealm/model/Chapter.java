@@ -13,10 +13,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 
 @Entity
-@Table(name = "chapters")
+@Table(name = "chapters", uniqueConstraints = @UniqueConstraint(columnNames = {"novel_id", "chapter_number"}))
 public class Chapter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

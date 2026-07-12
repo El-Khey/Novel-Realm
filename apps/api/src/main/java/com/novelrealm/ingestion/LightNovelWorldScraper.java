@@ -3,6 +3,8 @@ package com.novelrealm.ingestion;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,6 +22,8 @@ import java.util.regex.Pattern;
  */
 @Component
 public class LightNovelWorldScraper {
+
+    private static final Logger log = LoggerFactory.getLogger(LightNovelWorldScraper.class);
 
     private static final String BASE_URL = "https://lightnovelworld.org";
     // UA de navigateur réel : le site redirige (302) les UA "bot" sur les pages
@@ -54,6 +58,13 @@ public class LightNovelWorldScraper {
 
     /** Liste des chapitres (page /novel/{slug}/chapters/, paginée). */
     public List<ScrapedChapterRef> scrapeChapterRefs(String slug, int maxChapters) throws IOException {
+        // Garde : une limite ≤ 0 n'importe RIEN (au lieu de crawler tout le roman,
+        // ce qui serait un piège pour une valeur mal configurée). Mettre > 0.
+        if (maxChapters <= 0) {
+            log.warn("max-chapters={} (≤ 0) → aucun chapitre importé. Réglez une valeur > 0.", maxChapters);
+            return List.of();
+        }
+
         List<ScrapedChapterRef> refs = new ArrayList<>();
         String base = BASE_URL + "/novel/" + slug + "/chapters/";
 
@@ -74,7 +85,7 @@ public class LightNovelWorldScraper {
                 int number = Integer.parseInt(m.group(1));
                 String title = textOr(card.selectFirst(".chapter-title"), "Chapitre " + number);
                 refs.add(new ScrapedChapterRef(number, title, href));
-                if (maxChapters > 0 && refs.size() >= maxChapters) {
+                if (refs.size() >= maxChapters) {
                     return refs;
                 }
             }
