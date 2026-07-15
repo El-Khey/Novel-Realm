@@ -83,10 +83,11 @@ JSON-LD, contenu `#chapterText > p`).
   ce contenu. Pour une version publique, utiliser du domaine public (Project
   Gutenberg, Standard Ebooks…).
 - **Politesse** : garder `MAX` raisonnable et le délai entre requêtes ; ne pas
-  lancer 3000 chapitres d'un coup sans raison.
+  lancer 3000 chapitres d'un coup sans raison. `MAX ≤ 0` **n'importe rien**
+  (garde volontaire contre un crawl complet accidentel) — mettre une valeur > 0.
 - **Genres en anglais** : LNW renvoie les genres en anglais (« Adventure »…),
-  alors que le seed `04_genres_seed.sql` est en français — d'où d'éventuels
-  doublons FR/EN à réconcilier plus tard.
+  alors que le seed `04_genres_seed.sql` est en français. L'attribution des
+  genres aux romans sera reprise proprement plus tard (modèle à définir).
 
 ## Dépannage
 

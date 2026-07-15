@@ -5,9 +5,11 @@ import type { Novel } from "@/features/novels/types";
 import { NovelCover } from "@/features/novels/components/NovelCover";
 import { NOVEL_STATUS } from "@/features/novels/status";
 import { useChapters } from "@/features/novels/hooks/useChapters";
+import { useNovelProgress } from "@/features/progress/hooks/useNovelProgress";
 import { ApiError } from "@/lib/http";
 import AppLayout from "@/components/ui/AppLayout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type LoadState =
     | { status: "loading" }
@@ -110,12 +112,27 @@ function NovelDetail({ novel }: { novel: Novel }) {
 
 function ChapterList({ novelId }: { novelId: number }) {
     const { chapters, error } = useChapters(novelId);
+    const { readIds } = useNovelProgress(novelId);
+
+    // Reprise : premier chapitre non lu (ou le tout premier si tout est lu).
+    const firstUnread = chapters?.find((c) => !readIds.has(c.id));
+    const resumeChapter = firstUnread ?? (chapters && chapters.length > 0 ? chapters[0] : undefined);
+    const allRead = chapters != null && chapters.length > 0 && !firstUnread;
 
     return (
         <section className="border-t border-border pt-6">
-            <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Chapitres
-            </h2>
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Chapitres
+                </h2>
+                {resumeChapter && (
+                    <Button asChild size="sm">
+                        <Link to={`/novels/${novelId}/chapters/${resumeChapter.id}`}>
+                            {allRead ? "Relire depuis le début" : "Continuer la lecture"}
+                        </Link>
+                    </Button>
+                )}
+            </div>
 
             {error ? (
                 <p className="text-sm text-destructive">Impossible de charger les chapitres : {error}</p>
@@ -125,17 +142,33 @@ function ChapterList({ novelId }: { novelId: number }) {
                 <p className="text-sm text-muted-foreground">Aucun chapitre pour le moment.</p>
             ) : (
                 <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-                    {chapters.map((chapter) => (
-                        <li key={chapter.id}>
-                            <Link
-                                to={`/novels/${novelId}/chapters/${chapter.id}`}
-                                className="flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-secondary/50"
-                            >
-                                <span className="tabular-nums text-muted-foreground">{chapter.chapterNumber}</span>
-                                <span>{chapter.title}</span>
-                            </Link>
-                        </li>
-                    ))}
+                    {chapters.map((chapter) => {
+                        const isRead = readIds.has(chapter.id);
+                        return (
+                            <li key={chapter.id}>
+                                <Link
+                                    to={`/novels/${novelId}/chapters/${chapter.id}`}
+                                    className="flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-secondary/50"
+                                >
+                                    <span className="tabular-nums text-muted-foreground">
+                                        {chapter.chapterNumber}
+                                    </span>
+                                    <span className={isRead ? "text-muted-foreground" : undefined}>
+                                        {chapter.title}
+                                    </span>
+                                    {isRead && (
+                                        <span
+                                            className="ml-auto text-xs text-primary"
+                                            aria-label="Chapitre lu"
+                                            title="Lu"
+                                        >
+                                            ✓ Lu
+                                        </span>
+                                    )}
+                                </Link>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>

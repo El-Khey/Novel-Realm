@@ -7,6 +7,8 @@ interface Props {
     novel: Novel;
     libraryIds: Set<number>;
     categories: Category[];
+    /** Chapitres non lus à afficher en badge (optionnel). */
+    unreadCount?: number;
     onToggleLibrary: (novelId: number, next: boolean) => Promise<void>;
     onToggleCategory: (novelId: number, categoryId: number, next: boolean) => Promise<void>;
     onCreateCategory: (novelId: number, name: string) => Promise<void>;
@@ -21,6 +23,7 @@ export function NovelWithMenu({
     novel,
     libraryIds,
     categories,
+    unreadCount,
     onToggleLibrary,
     onToggleCategory,
     onCreateCategory,
@@ -31,7 +34,7 @@ export function NovelWithMenu({
 
     return (
         <div className="relative">
-            <NovelCard novel={novel} />
+            <NovelCard novel={novel} unreadCount={unreadCount} />
             <div className="absolute right-2 top-2 z-10">
                 <AddToLibraryMenu
                     inLibrary={libraryIds.has(novel.id)}
