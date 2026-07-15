@@ -18,6 +18,15 @@ export class ApiError extends Error {
     }
 }
 
+/** Enveloppe de pagination renvoyée par l'API (miroir de PageResponse côté back). */
+export interface PageResponse<T> {
+    content: T[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+}
+
 interface RequestOptions extends Omit<RequestInit, "headers"> {
     headers?: Record<string, string>;
 }
