@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
     { label: "Accueil", to: "/", end: true },
     { label: "Bibliothèque", to: "/novels", end: false },
+    { label: "Historique", to: "/historique", end: false },
     { label: "Profil", to: "/profil", end: false },
 ];
 
