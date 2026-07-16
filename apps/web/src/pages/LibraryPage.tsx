@@ -510,7 +510,7 @@ function EmptyState({ isAll, filtered }: { isAll: boolean; filtered: boolean }) 
                 {isAll ? "Votre bibliothèque est vide." : "Cette étagère est vide."}
             </p>
             <Link
-                to="/"
+                to="/explorer"
                 className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
             >
                 Parcourir le catalogue

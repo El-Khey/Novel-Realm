@@ -5,6 +5,7 @@ import {
     BookOpen01Icon,
     Cancel01Icon,
     Clock01Icon,
+    Compass01Icon,
     Home01Icon,
     Bookshelf01Icon,
     Logout01Icon,
@@ -27,6 +28,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
     { label: "Accueil", to: "/", end: true, icon: Home01Icon },
+    { label: "Explorer", to: "/explorer", end: false, icon: Compass01Icon },
     { label: "Bibliothèque", to: "/novels", end: false, icon: Bookshelf01Icon },
     { label: "Historique", to: "/historique", end: false, icon: Clock01Icon },
 ];
@@ -80,7 +82,7 @@ export default function Navbar() {
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
         const q = term.trim();
-        navigate(q ? `/?q=${encodeURIComponent(q)}#explorer` : "/#explorer");
+        navigate(q ? `/explorer?q=${encodeURIComponent(q)}` : "/explorer");
         setMobileOpen(false);
     }
 

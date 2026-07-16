@@ -23,7 +23,7 @@ export function PosterCard({ novel, remaining }: Props) {
         <Link
             to={`/novels/${novel.id}`}
             aria-label={`${novel.title}, par ${novel.author}`}
-            className="group/card block rounded-xl p-2 transition-colors hover:bg-white/4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+            className="group/card block rounded-lg p-1 transition-colors hover:bg-white/4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
         >
             <div className="relative mb-3 overflow-hidden rounded-lg shadow-lg shadow-black/40 ring-1 ring-white/5">
                 <NovelCover

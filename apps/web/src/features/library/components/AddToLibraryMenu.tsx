@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { FavouriteIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Icon } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
 import type { Category } from "@/features/categories/types";
 
 interface Props {
@@ -56,14 +59,24 @@ export function AddToLibraryMenu({
 
     return (
         <div ref={ref} className="relative">
-            <Button
-                size="xs"
-                variant={inLibrary ? "secondary" : "default"}
+            <button
+                type="button"
                 onClick={() => setOpen((v) => !v)}
+                aria-haspopup="menu"
                 aria-expanded={open}
+                aria-label={
+                    inLibrary ? "Dans ma bibliothèque — gérer les étagères" : "Ajouter à ma bibliothèque"
+                }
+                title={inLibrary ? "Dans ma bibliothèque" : "Ajouter à ma bibliothèque"}
+                className="grid size-8 place-items-center rounded-full bg-black/55 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-sm transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-                {inLibrary ? "✓ Dans ma biblio" : "+ Ajouter"}
-            </Button>
+                <Icon
+                    icon={FavouriteIcon}
+                    size={16}
+                    strokeWidth={2}
+                    className={cn("transition-colors", inLibrary && "fill-current text-primary")}
+                />
+            </button>
 
             {open && (
                 <div className="absolute right-0 top-8 z-20 w-56 rounded-lg border border-border bg-background p-1.5 shadow-xl">
