@@ -3,6 +3,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import HomePage from "@/pages/HomePage";
+import ExplorerPage from "@/pages/ExplorerPage";
 import LibraryPage from "@/pages/LibraryPage";
 import HistoryPage from "@/pages/HistoryPage";
 import NovelDetailPage from "@/pages/NovelDetailPage";
@@ -19,6 +20,7 @@ function App() {
             {/* Routes protégées — ProtectedRoute gère le chargement de la session. */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/explorer" element={<ExplorerPage />} />
                 <Route path="/novels" element={<LibraryPage />} />
                 <Route path="/historique" element={<HistoryPage />} />
                 <Route path="/novels/:id" element={<NovelDetailPage />} />

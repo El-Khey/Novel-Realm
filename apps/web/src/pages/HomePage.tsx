@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
+    ArrowRight01Icon,
     Clock01Icon,
     Compass01Icon,
     FireIcon,
@@ -38,22 +39,24 @@ const SELECT_CLASS =
 const GRID_CLASS =
     "grid grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
-const CONTINUE_ITEM =
-    "flex-[0_0_86%] sm:flex-[0_0_48%] lg:flex-[0_0_32%] xl:flex-[0_0_25%]";
+const CONTINUE_ITEM = "flex-[0_0_86%] sm:flex-[0_0_48%] lg:flex-[0_0_32%] xl:flex-[0_0_25%]";
+
+// Tuiles de genre : ~1,6 visibles en mobile → ~5,5 en très large (une seule ligne).
+const GENRE_ITEM =
+    "flex-[0_0_60%] sm:flex-[0_0_38%] md:flex-[0_0_30%] lg:flex-[0_0_23%] xl:flex-[0_0_18%]";
 
 /**
  * Accueil : vitrine du catalogue. Bandeau à la une, étagères façon Spotify
- * (reprise, populaires, nouveautés), tuiles de genre, et une section « Explorer »
- * qui expose recherche + filtres + tri sur le catalogue complet.
+ * (reprise, populaires, nouveautés), une ligne de genres, et une section
+ * « Explorer » qui expose recherche + filtres + tri sur le catalogue complet.
+ * (La page /explorer dédiée offre la même chose en plus riche.)
  */
 export default function HomePage() {
-    const [searchParams] = useSearchParams();
-    const location = useLocation();
     const exploreRef = useRef<HTMLElement>(null);
 
     // État de la recherche « Explorer »
-    const [qInput, setQInput] = useState(searchParams.get("q") ?? "");
-    const [q, setQ] = useState(searchParams.get("q") ?? "");
+    const [qInput, setQInput] = useState("");
+    const [q, setQ] = useState("");
     const [genreId, setGenreId] = useState<number | null>(null);
     const [status, setStatus] = useState<StatusFilter>("");
     const [sort, setSort] = useState<SortOption>("recent");
@@ -63,22 +66,6 @@ export default function HomePage() {
         const t = setTimeout(() => setQ(qInput.trim()), 300);
         return () => clearTimeout(t);
     }, [qInput]);
-
-    // Recherche depuis la navbar (?q=…).
-    useEffect(() => {
-        const p = searchParams.get("q");
-        if (p != null) {
-            setQInput(p);
-            setQ(p);
-        }
-    }, [searchParams]);
-
-    // Ancre #explorer : on défile jusqu'à la section Explorer.
-    useEffect(() => {
-        if (location.hash === "#explorer") {
-            exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    }, [location]);
 
     // Données
     const { genres } = useGenres();
@@ -110,6 +97,7 @@ export default function HomePage() {
 
     const heroNovels = recent?.slice(0, 5) ?? [];
 
+    // Sélectionne un genre puis défile jusqu'à la section Explorer.
     function pickGenre(id: number | null) {
         setGenreId(id);
         exploreRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -170,19 +158,31 @@ export default function HomePage() {
                     }}
                 />
 
-                {/* PARCOURIR PAR GENRE */}
+                {/* PARCOURIR PAR GENRE — une seule ligne + « Voir plus » au bout */}
                 {genres && genres.length > 0 && (
                     <Reveal>
                         <section>
                             <SectionHeader title="Parcourir par genre" icon={Compass01Icon} />
-                            <GenreTiles genres={genres} onPick={pickGenre} />
+                            <Shelf
+                                itemClassName={GENRE_ITEM}
+                                items={[
+                                    ...genres.map((genre) => (
+                                        <GenreTile key={genre.id} genre={genre} onPick={pickGenre} />
+                                    )),
+                                    <GenreSeeMore key="__see_more__" />,
+                                ]}
+                            />
                         </section>
                     </Reveal>
                 )}
 
                 {/* EXPLORER LE CATALOGUE */}
                 <section ref={exploreRef} id="explorer" className="scroll-mt-20">
-                    <SectionHeader title="Explorer le catalogue" icon={Search01Icon} />
+                    <SectionHeader
+                        title="Explorer le catalogue"
+                        icon={Search01Icon}
+                        action={{ label: "Vue complète", to: "/explorer" }}
+                    />
 
                     {/* Barre de recherche + filtres + tri */}
                     <div className="mb-5 rounded-2xl border border-border/70 bg-card/50 p-3">
@@ -327,28 +327,41 @@ function ShelfSection({
     );
 }
 
-/** Tuiles colorées de genres, cliquables (filtre + scroll vers Explorer). */
-function GenreTiles({ genres, onPick }: { genres: Genre[]; onPick: (id: number) => void }) {
+/** Tuile de genre (dans la ligne) : filtre l'Explorer de l'accueil sur ce genre. */
+function GenreTile({ genre, onPick }: { genre: Genre; onPick: (id: number) => void }) {
     return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {genres.map((genre) => (
-                <button
-                    key={genre.id}
-                    type="button"
-                    onClick={() => onPick(genre.id)}
-                    className="group relative aspect-16/10 overflow-hidden rounded-xl border border-border/70 bg-card p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
-                >
-                    {/* Lueur cramoisie au survol (accent unique, palette sobre) */}
-                    <span className="pointer-events-none absolute -right-6 -top-8 size-24 rounded-full bg-primary/20 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
-                    <span className="relative font-heading text-sm font-bold leading-tight text-foreground sm:text-base">
-                        {genre.name}
-                    </span>
-                    <span className="absolute -bottom-3 -right-2 text-primary/20 transition-colors group-hover:text-primary/40">
-                        <Icon icon={Compass01Icon} size={64} strokeWidth={1.5} />
-                    </span>
-                </button>
-            ))}
-        </div>
+        <button
+            type="button"
+            onClick={() => onPick(genre.id)}
+            className="group relative flex aspect-16/10 w-full flex-col overflow-hidden rounded-xl border border-border/70 bg-card p-3.5 text-left transition-colors hover:border-primary/40 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+        >
+            {/* Lueur cramoisie au survol (accent unique, palette sobre) */}
+            <span className="pointer-events-none absolute -right-6 -top-8 size-24 rounded-full bg-primary/20 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+            <span className="relative font-heading text-sm font-bold leading-tight text-foreground sm:text-base">
+                {genre.name}
+            </span>
+            <span className="absolute -bottom-3 -right-2 text-primary/20 transition-colors group-hover:text-primary/40">
+                <Icon icon={Compass01Icon} size={64} strokeWidth={1.5} />
+            </span>
+        </button>
+    );
+}
+
+/** Dernière tuile de la ligne de genres : mène à la page Explorer complète. */
+function GenreSeeMore() {
+    return (
+        <Link
+            to="/explorer"
+            aria-label="Voir tous les genres sur la page Explorer"
+            className="group relative flex aspect-16/10 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-dashed border-border bg-card/40 text-center transition-colors hover:border-primary/50 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+        >
+            <span className="grid size-9 place-items-center rounded-full bg-primary/12 text-primary transition-transform group-hover:scale-110">
+                <Icon icon={ArrowRight01Icon} size={18} strokeWidth={2.4} />
+            </span>
+            <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+                Voir plus
+            </span>
+        </Link>
     );
 }
 
