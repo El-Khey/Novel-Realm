@@ -1,3 +1,5 @@
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
+import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/features/categories/types";
 
@@ -13,19 +15,24 @@ interface Props {
 
 function tabClass(isActive: boolean) {
     return cn(
-        "shrink-0 border-b-2 px-1 pb-2 text-sm font-medium transition-colors",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
         isActive
-            ? "border-primary text-foreground"
-            : "border-transparent text-muted-foreground hover:text-foreground",
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+            : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground",
     );
 }
 
-/** Barre d'onglets : « Tous » + une catégorie par onglet + bouton « + ». */
+/** Barre d'onglets pilule : « Tous » + une étagère par onglet + bouton « + ». */
 export function CategoryTabs({ categories, active, onSelect, onCreateClick }: Props) {
     return (
-        <div className="flex items-center gap-6 border-b border-border">
-            <div className="flex flex-1 items-center gap-6 overflow-x-auto">
-                <button type="button" className={tabClass(active === "all")} onClick={() => onSelect("all")}>
+        <div className="flex items-center gap-2">
+            <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto">
+                <button
+                    type="button"
+                    className={tabClass(active === "all")}
+                    aria-pressed={active === "all"}
+                    onClick={() => onSelect("all")}
+                >
                     Tous
                 </button>
                 {categories.map((category) => (
@@ -33,10 +40,18 @@ export function CategoryTabs({ categories, active, onSelect, onCreateClick }: Pr
                         key={category.id}
                         type="button"
                         className={tabClass(active === category.id)}
+                        aria-pressed={active === category.id}
                         onClick={() => onSelect(category.id)}
                     >
                         {category.name}
-                        <span className="ml-1.5 text-xs text-muted-foreground">
+                        <span
+                            className={cn(
+                                "rounded-full px-1.5 text-xs tabular-nums",
+                                active === category.id
+                                    ? "bg-white/20 text-primary-foreground"
+                                    : "bg-background/60 text-muted-foreground",
+                            )}
+                        >
                             {category.novels.length}
                         </span>
                     </button>
@@ -47,21 +62,10 @@ export function CategoryTabs({ categories, active, onSelect, onCreateClick }: Pr
                 type="button"
                 onClick={onCreateClick}
                 aria-label="Nouvelle étagère"
-                className="mb-1 grid size-7 shrink-0 place-items-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                title="Nouvelle étagère"
+                className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="size-4"
-                    aria-hidden="true"
-                >
-                    <path d="M12 5v14" />
-                    <path d="M5 12h14" />
-                </svg>
+                <Icon icon={PlusSignIcon} size={18} strokeWidth={2.2} />
             </button>
         </div>
     );

@@ -4,24 +4,32 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/figtree";
+@import "@fontsource-variable/sora";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------
-   Design tokens — adaptés de apps/web/DESIGN.md (analyse Binance).
-   On branche les variables sémantiques de shadcn (--primary, --background, …)
-   sur la palette : accent indigo #6366f1 sur canvas quasi-noir #0b0e11
-   (structure issue de l'analyse Binance, accent personnalisé).
-   :root = thème clair (surfaces transactionnelles)
-   .dark = thème sombre (marketing / produit — le look signature)
+   Design tokens — thème « Novel Realm », inspiré de DESIGN.md (analyse Spotify).
+   Principe « content-first darkness » : l'UI disparaît dans un quasi-noir, les
+   couvertures des romans portent la couleur, et un UNIQUE accent fonctionnel
+   (cramoisi) sert les CTA / états actifs / lecture.
+
+   👉 Changer d'accent = une seule variable : --primary (+ --primary-active).
+      (ex. vert Spotify #1ed760 / #1db954 si un jour on préfère.)
+
+   :root = thème clair (pages d'auth) · .dark = le look signature (toute l'app,
+   AppLayout force `.dark`).
 --------------------------------------------------------------------------- */
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    /* Sora pour les titres (display), Figtree pour le corps/UI. */
     --font-sans: 'Figtree Variable', sans-serif;
+    --font-heading: 'Sora Variable', 'Figtree Variable', sans-serif;
 
-    /* Accents Binance exposés en utilitaires (bg-primary-active, text-up, …) */
+    /* Accents exposés en utilitaires (bg-primary-active, text-gold, …) */
     --color-primary-active: var(--primary-active);
+    --color-gold: var(--gold);
+    --color-surface-2: var(--surface-2);
     --color-up: var(--up);
     --color-down: var(--down);
 
@@ -57,114 +65,157 @@
     --color-foreground: var(--foreground);
     --color-background: var(--background);
 
-    /* Rayons resserrés (Binance : 6–12px). base 8px → md ≈ 6px, xl ≈ 11px */
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
+    /* Rayons modernes (base 12px). md ≈ 7px, xl ≈ 17px, 2xl ≈ 22px */
+    --radius-sm: calc(var(--radius) * 0.5);
+    --radius-md: calc(var(--radius) * 0.6);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) * 1.4);
     --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+    --radius-3xl: calc(var(--radius) * 2.4);
+    --radius-4xl: calc(var(--radius) * 3);
 }
 
 :root {
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+    color-scheme: light;
 
-    /* Light = surfaces transactionnelles (canvas-light #ffffff) */
+    /* Light = pages d'authentification */
     --background: #ffffff;
-    --foreground: #181a20;            /* ink */
+    --foreground: #0a0a0c;
     --card: #ffffff;
-    --card-foreground: #181a20;
+    --card-foreground: #0a0a0c;
     --popover: #ffffff;
-    --popover-foreground: #181a20;
+    --popover-foreground: #0a0a0c;
 
-    --primary: #6366f1;               /* Indigo (accent de marque) */
-    --primary-foreground: #ffffff;    /* texte blanc sur indigo */
-    --primary-active: #4f46e5;        /* press / hover plus foncé */
+    --primary: #f43f5e;               /* Cramoisi — accent de marque */
+    --primary-foreground: #ffffff;
+    --primary-active: #e11d48;        /* press / hover plus foncé */
 
-    --secondary: #f5f5f5;             /* surface-strong-light */
-    --secondary-foreground: #181a20;
-    --muted: #fafafa;                 /* surface-soft-light */
-    --muted-foreground: #707a8a;      /* muted */
-    --accent: #f5f5f5;
-    --accent-foreground: #181a20;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #0a0a0c;
+    --muted: #fafafa;
+    --muted-foreground: #6b7280;
+    --accent: #f4f4f5;
+    --accent-foreground: #0a0a0c;
+    --surface-2: #f4f4f5;
 
-    --destructive: #f6465d;           /* trading-down (rouge) */
-    --up: #0ecb81;                    /* trading-up (vert) */
-    --down: #f6465d;                  /* trading-down (rouge) */
+    --destructive: #ef4444;
+    --gold: #f5b301;
+    --up: #16c784;
+    --down: #ef4444;
 
-    --border: #eaecef;                /* hairline-on-light */
-    --input: #eaecef;
-    --ring: #6366f1;                  /* focus = accent indigo */
+    --border: #e5e7eb;
+    --input: #e5e7eb;
+    --ring: #f43f5e;
 
-    --chart-1: #6366f1;
-    --chart-2: #0ecb81;
-    --chart-3: #f6465d;
-    --chart-4: #2dbdb6;
+    --chart-1: #f43f5e;
+    --chart-2: #16c784;
+    --chart-3: #f5b301;
+    --chart-4: #8b5cf6;
     --chart-5: #3b82f6;
 
     --sidebar: #fafafa;
-    --sidebar-foreground: #181a20;
-    --sidebar-primary: #6366f1;
+    --sidebar-foreground: #0a0a0c;
+    --sidebar-primary: #f43f5e;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f5f5f5;
-    --sidebar-accent-foreground: #181a20;
-    --sidebar-border: #eaecef;
-    --sidebar-ring: #6366f1;
+    --sidebar-accent: #f4f4f5;
+    --sidebar-accent-foreground: #0a0a0c;
+    --sidebar-border: #e5e7eb;
+    --sidebar-ring: #f43f5e;
 }
 
 .dark {
-    /* Dark = look marketing signature (canvas-dark #0b0e11 + indigo) */
-    --background: #0b0e11;            /* canvas-dark */
-    --foreground: #eaecef;            /* body */
-    --card: #1e2329;                  /* surface-card-dark */
-    --card-foreground: #eaecef;
-    --popover: #1e2329;
-    --popover-foreground: #eaecef;
+    color-scheme: dark;
+    /* Dark = look signature « content-first darkness » (Spotify + cramoisi) */
+    --background: #0a0a0c;            /* quasi-noir : niveau 0 */
+    --foreground: #f4f4f5;            /* blanc cassé */
+    --card: #141418;                 /* surface niveau 1 (cartes) */
+    --card-foreground: #f4f4f5;
+    --popover: #1a1a1f;              /* menus / popovers (élevé) */
+    --popover-foreground: #f4f4f5;
 
-    --primary: #6366f1;
+    --primary: #f43f5e;               /* Cramoisi — CTA, actif, lecture */
     --primary-foreground: #ffffff;
-    --primary-active: #4f46e5;
+    --primary-active: #e11d48;
 
-    --secondary: #2b3139;             /* surface-elevated-dark */
-    --secondary-foreground: #eaecef;
-    --muted: #2b3139;
-    --muted-foreground: #929aa5;      /* muted-strong (lisible sur noir) */
-    --accent: #2b3139;
-    --accent-foreground: #eaecef;
+    --secondary: #1c1c21;            /* surface interactive (pills, boutons) */
+    --secondary-foreground: #f4f4f5;
+    --muted: #141418;
+    --muted-foreground: #a1a1ac;     /* argent lisible sur noir */
+    --accent: #232329;               /* surface au survol */
+    --accent-foreground: #ffffff;
+    --surface-2: #1f1f25;            /* carte élevée / survol */
 
-    --destructive: #f6465d;
-    --up: #0ecb81;
-    --down: #f6465d;
+    --destructive: #ff5a5f;
+    --gold: #f5b301;                 /* étoiles de note */
+    --up: #16c784;
+    --down: #ff5a5f;
 
-    --border: #2b3139;                /* hairline-on-dark */
-    --input: #2b3139;
-    --ring: #6366f1;
+    --border: #26262d;               /* hairline discret sur noir */
+    --input: #1c1c21;
+    --ring: #f43f5e;
 
-    --chart-1: #6366f1;
-    --chart-2: #0ecb81;
-    --chart-3: #f6465d;
-    --chart-4: #2dbdb6;
+    --chart-1: #f43f5e;
+    --chart-2: #16c784;
+    --chart-3: #f5b301;
+    --chart-4: #8b5cf6;
     --chart-5: #3b82f6;
 
-    --sidebar: #1e2329;
-    --sidebar-foreground: #eaecef;
-    --sidebar-primary: #6366f1;
+    --sidebar: #141418;
+    --sidebar-foreground: #f4f4f5;
+    --sidebar-primary: #f43f5e;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #2b3139;
-    --sidebar-accent-foreground: #eaecef;
-    --sidebar-border: #2b3139;
-    --sidebar-ring: #6366f1;
+    --sidebar-accent: #232329;
+    --sidebar-accent-foreground: #f4f4f5;
+    --sidebar-border: #26262d;
+    --sidebar-ring: #f43f5e;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground antialiased;
     }
-  html {
-    @apply font-sans;
+    html {
+        @apply font-sans;
+        scroll-behavior: smooth;
+    }
+    ::selection {
+        background: color-mix(in oklab, var(--primary) 35%, transparent);
+    }
+    /* Barres de défilement discrètes, cohérentes avec le thème sombre. */
+    ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #2c2c34;
+        border: 3px solid transparent;
+        border-radius: 9999px;
+        background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #3a3a44;
+        background-clip: padding-box;
+    }
+}
+
+@layer utilities {
+    /* Masque la scrollbar tout en gardant le scroll (carrousels horizontaux). */
+    .no-scrollbar {
+        scrollbar-width: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    /* Dégradé « fondu bas » réutilisable pour les hero (texte lisible). */
+    .mask-fade-b {
+        -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent);
+        mask-image: linear-gradient(to bottom, black 55%, transparent);
     }
 }

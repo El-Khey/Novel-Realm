@@ -8,7 +8,6 @@
 #  condition "service_healthy" dans depends_on (l'API n'attaque la base
 #  qu'une fois qu'elle répond vraiment).
 # =====================================================================
-version: "2.4"
 
 services:
   # ── Base de données PostgreSQL ─────────────────────────────────
