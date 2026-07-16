@@ -1,14 +1,14 @@
 # =====================================================================
 #  Makefile : raccourcis pour piloter Docker sans retenir les longues
-#  commandes docker-compose. Tape simplement `make <cible>`.
-#  (Sur cette machine, docker-compose est en v1 → commande "docker-compose".)
+#  commandes compose. Tape simplement `make <cible>`.
+#  (Utilise le plugin Docker Compose v2 → commande "docker compose".)
 # =====================================================================
 
 # La commande compose et les combinaisons de fichiers pour chaque mode.
 # "-p novelrealm" fixe le NOM DE PROJET Compose : il sert de préfixe aux
 # conteneurs, volumes et réseau (novelrealm_postgres_data, etc.). Sans lui,
 # Compose prendrait le nom du dossier courant — on le fige donc explicitement.
-COMPOSE := docker-compose -p novelrealm
+COMPOSE := docker compose -p novelrealm
 DEV     := -f docker-compose.yml -f docker-compose.dev.yml
 PROD    := -f docker-compose.yml
 

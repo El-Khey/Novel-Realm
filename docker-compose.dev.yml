@@ -10,8 +10,6 @@
 #   - on monte le code source en VOLUME → toute modif est visible dans le
 #     conteneur sans reconstruire l'image.
 # =====================================================================
-version: "2.4"
-
 services:
   api:
     build:
@@ -23,6 +21,11 @@ services:
     volumes:
       - ./apps/api:/app           # le code source (modifs visibles direct)
       - gradle_cache:/root/.gradle # cache des dépendances Gradle (sinon re-téléchargé à chaque fois)
+      # Cache PROJET Gradle propre au conteneur : évite que son bootRun et le
+      # Gradle de l'IDE hôte se disputent le verrou de ./apps/api/.gradle
+      # ("Timeout waiting to lock ... another Gradle instance"). Même raison que
+      # le cache dédié de `make ingest`. (build/ reste partagé pour le hot-reload.)
+      - /app/.gradle
 
   web:
     build:
