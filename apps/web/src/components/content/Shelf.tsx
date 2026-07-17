@@ -67,7 +67,7 @@ export function Shelf({ items, itemClassName = DEFAULT_ITEM, className }: ShelfP
     return (
         <div className={cn("group/shelf relative", className)}>
             <div className="overflow-hidden" ref={emblaRef}>
-                <div className="flex gap-3 sm:gap-4">
+                <div className="flex gap-0.5 sm:gap-1">
                     {items.map((item, i) => {
                         const hidden = inView !== null && !inView.includes(i);
                         return (

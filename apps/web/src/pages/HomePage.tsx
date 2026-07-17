@@ -301,7 +301,7 @@ function ShelfSection({
                     action={{ label: "Voir tout", onClick: onSeeAll }}
                 />
                 {novels === null ? (
-                    <div className="flex gap-3 overflow-hidden sm:gap-4">
+                    <div className="flex gap-0.5 overflow-hidden sm:gap-1">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div
                                 key={i}
