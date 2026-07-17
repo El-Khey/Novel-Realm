@@ -1,5 +1,6 @@
 package com.novelrealm.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,9 @@ public interface ChapterProgressRepository extends JpaRepository<ChapterProgress
 
     /** La progression d'un utilisateur sur un chapitre précis, si elle existe. */
     Optional<ChapterProgress> findByUser_IdAndChapter_Id(Long userId, Long chapterId);
+
+    /** La progression existante d'un utilisateur sur un lot de chapitres (marquage en masse). */
+    List<ChapterProgress> findByUser_IdAndChapter_IdIn(Long userId, Collection<Long> chapterIds);
 
     /** Toute la progression d'un utilisateur sur les chapitres d'un roman. */
     List<ChapterProgress> findByUser_IdAndChapter_Novel_Id(Long userId, Long novelId);

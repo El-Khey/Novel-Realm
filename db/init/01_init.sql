@@ -102,3 +102,12 @@ CREATE TABLE IF NOT EXISTS chapter_progress (
     read_at          TIMESTAMP NOT NULL,                -- historique / reprendre / tri
     PRIMARY KEY (user_id, chapter_id)
 );
+
+-- ───────────────────────── Favoris de chapitre ──────────────────────
+-- Marque-pages : chapitres mis en favori par un utilisateur.
+CREATE TABLE IF NOT EXISTS chapter_favorite (
+    user_id       BIGINT NOT NULL REFERENCES users(id)    ON DELETE CASCADE,
+    chapter_id    BIGINT NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    favorited_at  TIMESTAMP NOT NULL,                    -- tri "ajoutés récemment"
+    PRIMARY KEY (user_id, chapter_id)
+);

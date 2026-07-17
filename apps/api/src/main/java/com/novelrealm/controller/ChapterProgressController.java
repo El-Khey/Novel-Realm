@@ -2,6 +2,7 @@ package com.novelrealm.controller;
 
 import java.util.List;
 
+import com.novelrealm.dto.BatchMarkChaptersReadRequest;
 import com.novelrealm.dto.ChapterProgressResponse;
 import com.novelrealm.dto.MarkChapterReadRequest;
 import com.novelrealm.dto.NovelProgressSummary;
@@ -43,6 +44,19 @@ public class ChapterProgressController {
         ChapterProgress progress = progressService.setRead(
                 authentication.getName(), chapterId, request.read());
         return ResponseEntity.ok(toResponse(progress));
+    }
+
+    /** PUT /api/progress/chapters/batch — marque un lot de chapitres lus / non lus. */
+    @PutMapping("/chapters/batch")
+    public ResponseEntity<List<ChapterProgressResponse>> setReadBatch(
+            @Valid @RequestBody BatchMarkChaptersReadRequest request,
+            Authentication authentication) {
+        List<ChapterProgressResponse> body = progressService
+                .setReadBatch(authentication.getName(), request.chapterIds(), request.read())
+                .stream()
+                .map(ChapterProgressController::toResponse)
+                .toList();
+        return ResponseEntity.ok(body);
     }
 
     /** GET /api/progress/novels/{novelId} — progression sur tous les chapitres du roman. */

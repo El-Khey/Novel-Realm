@@ -11,6 +11,7 @@ ajouter le nombre de chapitre
 recherche d'un chapitre par numero ou titre
 ordonner par numero croissant ou decroissant
 pouvoir marquer un chapitre comme lu ou non lu
+retravailler l'affichage de la liste des chapitres (style design layout)
 selectionner plusieurs chapitres pour les marquer comme lu ou non lu
 selectionner tout les chapitre 
 selectionner tout les chapitre en dessous de celui selectionné

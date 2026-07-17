@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 
@@ -53,6 +54,13 @@ public class NovelService {
 
     public Novel findById(Long id) {
         return novelRepository.findById(id)
+                .orElseThrow(() -> new NovelNotFoundException(id));
+    }
+
+    /** Détail d'un roman avec ses genres chargés (pour la fiche). */
+    @Transactional(readOnly = true)
+    public Novel findWithGenresById(Long id) {
+        return novelRepository.findWithGenresById(id)
                 .orElseThrow(() -> new NovelNotFoundException(id));
     }
 }

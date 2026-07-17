@@ -107,4 +107,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(ChapterFavoriteNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleChapterFavoriteNotFound(ChapterFavoriteNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), // 404
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ChapterAlreadyFavoritedException.class)
+    public ResponseEntity<ErrorResponse> handleChapterAlreadyFavorited(ChapterAlreadyFavoritedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(), // 409
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }

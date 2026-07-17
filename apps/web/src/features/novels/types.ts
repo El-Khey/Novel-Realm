@@ -1,3 +1,5 @@
+import type { Genre } from "@/features/genres/types";
+
 /** Novel tels qu'ils sont retournés par l'API */
 export interface Novel {
     id: number;
@@ -7,6 +9,11 @@ export interface Novel {
     coverImageUrl: string | null;
     status: "ONGOING" | "COMPLETED";
     createdAt: string;
+}
+
+/** Détail d'un roman (fiche) : le roman + ses genres. Renvoyé par GET /novels/{id}. */
+export interface NovelDetail extends Novel {
+    genres: Genre[];
 }
 
 /** Chapitre (version liste, sans contenu) — miroir de ChapterResponse côté API */

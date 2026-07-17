@@ -2,6 +2,7 @@ package com.novelrealm.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,14 @@ import java.util.Optional;
 public interface NovelRepository extends JpaRepository<Novel, Long> {
     // Clé naturelle pour l'ingestion idempotente (un slug = un roman).
     Optional<Novel> findBySlug(String slug);
+
+    /**
+     * Roman + ses genres chargés en une requête ({@code @EntityGraph}), pour la
+     * fiche détail. Évite une {@code LazyInitializationException} côté controller
+     * ({@code open-in-view: false}).
+     */
+    @EntityGraph(attributePaths = "genres")
+    Optional<Novel> findWithGenresById(Long id);
 
     /**
      * Recherche/filtre du catalogue, paginée. Tous les critères sont optionnels

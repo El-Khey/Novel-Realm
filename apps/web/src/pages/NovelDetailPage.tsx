@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getNovel } from "@/features/novels/novel.service";
-import type { Novel } from "@/features/novels/types";
-import { NovelCover } from "@/features/novels/components/NovelCover";
-import { NOVEL_STATUS } from "@/features/novels/status";
+import type { NovelDetail } from "@/features/novels/types";
+import { NovelHero } from "@/features/novels/components/NovelHero";
+import { ChapterList } from "@/features/novels/components/ChapterList";
 import { useChapters } from "@/features/novels/hooks/useChapters";
 import { useNovelProgress } from "@/features/progress/hooks/useNovelProgress";
+import { useChapterFavorites } from "@/features/favorites/hooks/useChapterFavorites";
 import { ApiError } from "@/lib/http";
 import AppLayout from "@/components/ui/AppLayout";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type LoadState =
     | { status: "loading" }
     | { status: "error"; message: string }
-    | { status: "loaded"; novel: Novel };
+    | { status: "loaded"; novel: NovelDetail };
 
 export default function NovelDetailPage() {
     const { id } = useParams();
@@ -27,6 +26,7 @@ export default function NovelDetailPage() {
         if (!validId) return;
 
         let active = true;
+        setState({ status: "loading" });
         getNovel(novelId)
             .then((novel) => active && setState({ status: "loaded", novel }))
             .catch((e) => {
@@ -64,55 +64,18 @@ export default function NovelDetailPage() {
                 ) : state.status === "error" ? (
                     <ErrorBox message={state.message} />
                 ) : (
-                    <NovelDetail novel={state.novel} />
+                    <NovelDetailView novel={state.novel} />
                 )}
             </div>
         </AppLayout>
     );
 }
 
-function NovelDetail({ novel }: { novel: Novel }) {
-    const status = NOVEL_STATUS[novel.status];
-
-    return (
-        <div className="space-y-8">
-            <div className="flex flex-col gap-8 sm:flex-row">
-                <NovelCover
-                    title={novel.title}
-                    coverImageUrl={novel.coverImageUrl}
-                    className="w-48 shrink-0 rounded-xl ring-1 ring-foreground/10"
-                />
-
-                <div className="flex-1 space-y-4">
-                    <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-4">
-                            <h1 className="text-2xl font-bold tracking-tight">{novel.title}</h1>
-                            <Badge variant={status.variant} className="shrink-0">
-                                {status.label}
-                            </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">par {novel.author}</p>
-                    </div>
-
-                    <div className="border-t border-border pt-4">
-                        <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Résumé
-                        </h2>
-                        <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
-                            {novel.description}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <ChapterList novelId={novel.id} />
-        </div>
-    );
-}
-
-function ChapterList({ novelId }: { novelId: number }) {
-    const { chapters, error } = useChapters(novelId);
-    const { readIds } = useNovelProgress(novelId);
+/** Vue « chargée » : centralise les données (chapitres, progression, favoris). */
+function NovelDetailView({ novel }: { novel: NovelDetail }) {
+    const { chapters, error } = useChapters(novel.id);
+    const { readIds, setRead, setReadBatch } = useNovelProgress(novel.id);
+    const { favoriteIds, toggleFavorite } = useChapterFavorites(novel.id);
 
     // Reprise : premier chapitre non lu (ou le tout premier si tout est lu).
     const firstUnread = chapters?.find((c) => !readIds.has(c.id));
@@ -120,58 +83,25 @@ function ChapterList({ novelId }: { novelId: number }) {
     const allRead = chapters != null && chapters.length > 0 && !firstUnread;
 
     return (
-        <section className="border-t border-border pt-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Chapitres
-                </h2>
-                {resumeChapter && (
-                    <Button asChild size="sm">
-                        <Link to={`/novels/${novelId}/chapters/${resumeChapter.id}`}>
-                            {allRead ? "Relire depuis le début" : "Continuer la lecture"}
-                        </Link>
-                    </Button>
-                )}
-            </div>
+        <div className="space-y-8">
+            <NovelHero
+                novel={novel}
+                chapterCount={chapters?.length ?? null}
+                resumeTo={resumeChapter ? `/novels/${novel.id}/chapters/${resumeChapter.id}` : null}
+                resumeLabel={allRead ? "Relire depuis le début" : "Continuer la lecture"}
+            />
 
-            {error ? (
-                <p className="text-sm text-destructive">Impossible de charger les chapitres : {error}</p>
-            ) : chapters === null ? (
-                <p className="text-sm text-muted-foreground">Chargement…</p>
-            ) : chapters.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucun chapitre pour le moment.</p>
-            ) : (
-                <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-                    {chapters.map((chapter) => {
-                        const isRead = readIds.has(chapter.id);
-                        return (
-                            <li key={chapter.id}>
-                                <Link
-                                    to={`/novels/${novelId}/chapters/${chapter.id}`}
-                                    className="flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-secondary/50"
-                                >
-                                    <span className="tabular-nums text-muted-foreground">
-                                        {chapter.chapterNumber}
-                                    </span>
-                                    <span className={isRead ? "text-muted-foreground" : undefined}>
-                                        {chapter.title}
-                                    </span>
-                                    {isRead && (
-                                        <span
-                                            className="ml-auto text-xs text-primary"
-                                            aria-label="Chapitre lu"
-                                            title="Lu"
-                                        >
-                                            ✓ Lu
-                                        </span>
-                                    )}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
-        </section>
+            <ChapterList
+                novelId={novel.id}
+                chapters={chapters}
+                error={error}
+                readIds={readIds}
+                favoriteIds={favoriteIds}
+                onToggleRead={setRead}
+                onToggleFavorite={toggleFavorite}
+                onMarkBatch={setReadBatch}
+            />
+        </div>
     );
 }
 

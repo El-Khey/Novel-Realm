@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
+import java.util.List;
+
+import com.novelrealm.dto.GenreResponse;
+import com.novelrealm.dto.NovelDetailResponse;
 import com.novelrealm.dto.NovelResponse;
 import com.novelrealm.dto.PageResponse;
 import com.novelrealm.model.Novel;
@@ -47,9 +52,10 @@ public class NovelController {
         return ResponseEntity.ok(PageResponse.from(result));
     }
 
+    /** Fiche détail d'un roman (avec ses genres). */
     @GetMapping("/{id}")
-    public ResponseEntity<NovelResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(toResponse(novelService.findById(id)));
+    public ResponseEntity<NovelDetailResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(toDetailResponse(novelService.findWithGenresById(id)));
     }
 
     /** Entité → DTO (résumé de roman). */
@@ -62,5 +68,22 @@ public class NovelController {
                 novel.getCoverUrl(),
                 novel.getStatus(),
                 novel.getCreatedAt());
+    }
+
+    /** Entité → DTO détail (résumé + genres triés par nom). */
+    private static NovelDetailResponse toDetailResponse(Novel novel) {
+        List<GenreResponse> genres = novel.getGenres().stream()
+                .map(g -> new GenreResponse(g.getId(), g.getName()))
+                .sorted(Comparator.comparing(GenreResponse::name))
+                .toList();
+        return new NovelDetailResponse(
+                novel.getId(),
+                novel.getTitle(),
+                novel.getAuthor(),
+                novel.getDescription(),
+                novel.getCoverUrl(),
+                novel.getStatus(),
+                novel.getCreatedAt(),
+                genres);
     }
 }

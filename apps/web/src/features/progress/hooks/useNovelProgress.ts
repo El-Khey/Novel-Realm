@@ -3,6 +3,7 @@ import {
     getNovelProgress,
     saveChapterPosition,
     setChapterRead,
+    setChaptersReadBatch,
 } from "@/features/progress/progress.service";
 import type { ChapterProgress } from "@/features/progress/types";
 
@@ -47,9 +48,20 @@ export function useNovelProgress(novelId: number) {
         upsert(await setChapterRead(chapterId, read));
     }, []);
 
+    /** Marque un lot de chapitres lus / non lus (sélection multiple) puis fusionne le résultat. */
+    const setReadBatch = useCallback(async (chapterIds: number[], read: boolean) => {
+        if (chapterIds.length === 0) return;
+        const updated = await setChaptersReadBatch(chapterIds, read);
+        setProgressById((prev) => {
+            const next = new Map(prev);
+            for (const p of updated) next.set(p.chapterId, p);
+            return next;
+        });
+    }, []);
+
     const savePosition = useCallback(async (chapterId: number, percent: number) => {
         upsert(await saveChapterPosition(chapterId, percent));
     }, []);
 
-    return { progressById, readIds, loaded, error, setRead, savePosition };
+    return { progressById, readIds, loaded, error, setRead, setReadBatch, savePosition };
 }

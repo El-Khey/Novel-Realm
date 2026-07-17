@@ -1,5 +1,6 @@
 package com.novelrealm.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +72,29 @@ public class ChapterProgressService {
             progress.setRead(true);
         }
         return progressRepository.save(progress);
+    }
+
+    /**
+     * Marque un LOT de chapitres comme lus / non lus en une transaction
+     * (sélection multiple). Les ids inconnus sont ignorés. « Upsert » par
+     * chapitre : on met à jour la progression existante, on crée les manquantes.
+     */
+    @Transactional
+    public List<ChapterProgress> setReadBatch(String email, List<Long> chapterIds, boolean read) {
+        User user = userService.findByEmail(email);
+
+        Map<Long, ChapterProgress> existing = progressRepository
+                .findByUser_IdAndChapter_IdIn(user.getId(), chapterIds).stream()
+                .collect(Collectors.toMap(p -> p.getChapter().getId(), p -> p));
+
+        List<ChapterProgress> toSave = new ArrayList<>();
+        for (Chapter chapter : chapterService.findAllByIds(chapterIds)) {
+            ChapterProgress progress = existing.getOrDefault(
+                    chapter.getId(), new ChapterProgress(user, chapter));
+            progress.setRead(read);
+            toSave.add(progress);
+        }
+        return progressRepository.saveAll(toSave);
     }
 
     /** Progression de l'utilisateur sur tous les chapitres d'un roman. */

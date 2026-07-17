@@ -14,6 +14,17 @@ export function setChapterRead(chapterId: number, read: boolean): Promise<Chapte
     });
 }
 
+/** Marque un lot de chapitres lus / non lus en une requête (sélection multiple). */
+export function setChaptersReadBatch(
+    chapterIds: number[],
+    read: boolean,
+): Promise<ChapterProgress[]> {
+    return request<ChapterProgress[]>("/progress/chapters/batch", {
+        method: "PUT",
+        body: JSON.stringify({ chapterIds, read }),
+    });
+}
+
 /** Sauvegarde la position de reprise (0–100 %). 100 % marque le chapitre lu. */
 export function saveChapterPosition(chapterId: number, percent: number): Promise<ChapterProgress> {
     return request<ChapterProgress>(`/progress/chapters/${chapterId}/position`, {
