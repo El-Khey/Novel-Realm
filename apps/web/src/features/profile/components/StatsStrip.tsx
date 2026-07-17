@@ -27,7 +27,7 @@ export function StatsStrip() {
         return (
             <div className="grid grid-cols-3 gap-3 md:grid-cols-6" aria-hidden="true">
                 {Array.from({ length: 6 }, (_, i) => (
-                    <div key={i} className="h-16 animate-pulse rounded-lg bg-secondary" />
+                    <div key={i} className="h-20 animate-pulse rounded-lg bg-secondary" />
                 ))}
             </div>
         );
@@ -53,13 +53,15 @@ export function StatsStrip() {
                 <div
                     key={t.label}
                     title={t.title}
-                    className="rounded-lg border border-border bg-secondary/40 px-3 py-2.5"
+                    className="flex h-full flex-col items-center justify-between gap-2 rounded-lg border border-border bg-secondary/40 px-3 py-3 text-center"
                 >
-                    <dt className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-                        <Icon icon={t.icon} size={13} />
-                        {t.label}
+                    <dt className="flex items-start justify-center gap-1.5 text-[11px] font-medium leading-tight text-muted-foreground">
+                        <Icon icon={t.icon} size={13} className="mt-px shrink-0" />
+                        <span>{t.label}</span>
                     </dt>
-                    <dd className="mt-0.5 font-heading text-lg font-bold tabular-nums">{t.value}</dd>
+                    <dd className="font-heading text-xl font-bold leading-none tabular-nums">
+                        {t.value}
+                    </dd>
                 </div>
             ))}
         </dl>
