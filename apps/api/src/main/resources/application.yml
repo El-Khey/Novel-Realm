@@ -17,6 +17,14 @@ spring:
       hibernate:
         format_sql: true
 
+  # ── Upload de fichiers (avatars, bannières) ────────────────────
+  # Limite « transport » du multipart ; les limites métier (2 Mo avatar,
+  # 4 Mo bannière) sont vérifiées dans FileStorageService.
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   # ── Envoi d'emails (SMTP Gmail) ────────────────────────────────
   mail:
     host: smtp.gmail.com
@@ -45,6 +53,8 @@ spring:
 # ── Configuration applicative ───────────────────────────────────
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  # Dossier disque des uploads (relatif au dossier de travail de l'app).
+  upload-dir: ${UPLOAD_DIR:uploads}
 
 server:
   port: 8080

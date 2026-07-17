@@ -32,6 +32,19 @@ public interface ChapterProgressRepository extends JpaRepository<ChapterProgress
     /** La progression existante d'un utilisateur sur un lot de chapitres (marquage en masse). */
     List<ChapterProgress> findByUser_IdAndChapter_IdIn(Long userId, Collection<Long> chapterIds);
 
+    /** Nombre total de chapitres lus par l'utilisateur (stats du profil). */
+    long countByUser_IdAndReadTrue(Long userId);
+
+    /**
+     * Jours calendaires d'activité de lecture (dates distinctes de
+     * {@code read_at}), pour les statistiques du profil (jours de lecture,
+     * séries). Approximation assumée : {@code read_at} porte la DERNIÈRE
+     * activité de chaque chapitre.
+     */
+    @Query(value = "SELECT DISTINCT CAST(read_at AS date) FROM chapter_progress WHERE user_id = :userId",
+            nativeQuery = true)
+    List<java.time.LocalDate> findActivityDates(@Param("userId") Long userId);
+
     /** Toute la progression d'un utilisateur sur les chapitres d'un roman. */
     List<ChapterProgress> findByUser_IdAndChapter_Novel_Id(Long userId, Long novelId);
 

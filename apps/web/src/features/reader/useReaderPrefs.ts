@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { schedulePreferencesSync } from "@/features/profile/preferences";
 
 /** Identifiants des options du lecteur. */
 export type ReaderThemeId = "clair" | "sepia" | "sombre" | "oled";
@@ -97,6 +98,8 @@ export function useReaderPrefs() {
         } catch {
             /* quota plein / navigation privée : on ignore silencieusement */
         }
+        // Copie serveur (profil #17) : débouncé, best-effort.
+        schedulePreferencesSync();
     }, [prefs]);
 
     const update = useCallback(<K extends keyof ReaderPrefs>(key: K, value: ReaderPrefs[K]) => {

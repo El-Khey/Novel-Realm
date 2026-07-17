@@ -39,11 +39,28 @@ public class User {
         LOCAL,
         GOOGLE
     }
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider provider;
-    
+
+    // ── Profil (issue #17) ──────────────────────────────────────────
+    // Bio courte affichée sur la page profil (nullable).
+    @Column(name = "bio")
+    private String bio;
+
+    // Avatar : chemin local (/uploads/avatars/…) ou URL externe (photo Google).
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
+    // Bannière de profil (optionnelle), même stratégie que l'avatar.
+    @Column(name = "banner_url")
+    private String bannerUrl;
+
+    // Préférences JSON opaques (accent de l'app, réglages du lecteur…).
+    @Column(name = "preferences")
+    private String preferences;
+
     protected User() {}
 
     public User(String pseudo, String email, String password, AuthProvider provider) {
@@ -105,5 +122,37 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getBannerUrl() {
+        return bannerUrl;
+    }
+
+    public void setBannerUrl(String bannerUrl) {
+        this.bannerUrl = bannerUrl;
+    }
+
+    public String getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(String preferences) {
+        this.preferences = preferences;
+    }
+
 }

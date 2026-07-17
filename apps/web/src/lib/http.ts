@@ -73,3 +73,35 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 export async function requestNoContent(path: string, options: RequestOptions = {}): Promise<void> {
     await doFetch(path, options);
 }
+
+/**
+ * Envoi multipart (upload d'avatar/bannière) : PAS de Content-Type manuel —
+ * le navigateur le pose lui-même avec la « boundary ». Mêmes erreurs que
+ * `request` (ApiError avec le code HTTP).
+ */
+export async function requestUpload<T>(
+    path: string,
+    form: FormData,
+    method: "POST" | "PUT" = "POST",
+): Promise<T> {
+    const response = await fetch(BASE_URL + path, {
+        method,
+        body: form,
+        credentials: "include",
+    });
+
+    if (!response.ok) {
+        const body: ErrorBody = await response.json().catch(() => ({}));
+        throw new ApiError(response.status, body.message ?? "Erreur réseau");
+    }
+
+    return response.json() as Promise<T>;
+}
+
+/**
+ * Résout une ressource servie par l'API (ex. `/uploads/avatars/x.png`) en URL
+ * absolue. Les URLs déjà absolues (photo Google) sont renvoyées telles quelles.
+ */
+export function assetUrl(path: string): string {
+    return path.startsWith("http") ? path : API_ORIGIN + path;
+}

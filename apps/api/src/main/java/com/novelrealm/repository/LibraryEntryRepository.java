@@ -35,4 +35,7 @@ public interface LibraryEntryRepository extends JpaRepository<LibraryEntry, Libr
 
     /** Vrai si l'utilisateur a déjà ce roman dans sa bibliothèque. */
     boolean existsByUserIdAndNovelId(Long userId, Long novelId);
+
+    /** Nombre de romans suivis par l'utilisateur (stats du profil). */
+    long countByUserId(Long userId);
 }

@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
     password    VARCHAR(255),                          -- NULL pour un compte OAuth
     provider    VARCHAR(20)  NOT NULL DEFAULT 'LOCAL'
                 CHECK (provider IN ('LOCAL', 'GOOGLE')),
+    bio         TEXT,                                  -- bio courte du profil (nullable)
+    avatar_url  VARCHAR(500),                          -- /uploads/avatars/… ou URL Google
+    banner_url  VARCHAR(500),                          -- bannière de profil (optionnelle)
+    preferences TEXT,                                  -- préférences JSON (accent, lecteur…)
     created_at  TIMESTAMP NOT NULL,
     updated_at  TIMESTAMP NOT NULL
 );

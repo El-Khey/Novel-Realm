@@ -1,11 +1,14 @@
 package com.novelrealm.service;
 
 import com.novelrealm.exception.EmailAlreadyUsedException;
+import com.novelrealm.exception.InvalidProfileFieldException;
+import com.novelrealm.exception.PasswordChangeNotAllowedException;
 import com.novelrealm.exception.UserNotFoundException;
 import com.novelrealm.model.User;
 import com.novelrealm.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.novelrealm.exception.InvalidCredentialsException;
 import com.novelrealm.model.User.AuthProvider;
 
@@ -68,12 +71,14 @@ public class UserService {
         return user;
     }
 
-    public User loginWithGoogle(String email, String pseudo) {
+    public User loginWithGoogle(String email, String pseudo, String pictureUrl) {
         // Stratégie A : on cherche un compte existant par email.
         return userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     // Pas de compte → on en crée un "GOOGLE" (sans mot de passe).
                     User user = new User(pseudo, email, null, User.AuthProvider.GOOGLE);
+                    // La photo Google sert d'avatar par défaut (modifiable ensuite).
+                    user.setAvatarUrl(pictureUrl);
                     User savedUser = userRepository.save(user);
                     try {
                         emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getPseudo());
@@ -88,5 +93,74 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
     }
-    
+
+    // ── Profil (issue #17) ──────────────────────────────────────────
+
+    /** Taille maximale du JSON de préférences (garde-fou anti-abus). */
+    private static final int MAX_PREFERENCES_LENGTH = 20_000;
+
+    /**
+     * Mise à jour PARTIELLE du profil : chaque paramètre {@code null} est
+     * laissé tel quel. Une bio vide efface la bio.
+     */
+    @Transactional
+    public User updateProfile(String email, String pseudo, String bio, String preferencesJson) {
+        User user = findByEmail(email);
+
+        if (pseudo != null) {
+            String cleaned = pseudo.strip();
+            if (cleaned.length() < 3 || cleaned.length() > 30) {
+                throw new InvalidProfileFieldException("Le pseudo doit faire entre 3 et 30 caractères");
+            }
+            user.setPseudo(cleaned);
+        }
+        if (bio != null) {
+            String cleaned = bio.strip();
+            user.setBio(cleaned.isEmpty() ? null : cleaned);
+        }
+        if (preferencesJson != null) {
+            if (preferencesJson.length() > MAX_PREFERENCES_LENGTH) {
+                throw new InvalidProfileFieldException("Préférences trop volumineuses");
+            }
+            // Chaîne vide = effacement explicite (cf. UserController).
+            user.setPreferences(preferencesJson.isEmpty() ? null : preferencesJson);
+        }
+        return user; // @Transactional → flush automatique (dirty checking)
+    }
+
+    /**
+     * Change le mot de passe après vérification de l'actuel. Refusé pour les
+     * comptes Google (pas de mot de passe local).
+     */
+    @Transactional
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = findByEmail(email);
+
+        if (user.getProvider() == AuthProvider.GOOGLE || user.getPassword() == null) {
+            throw new PasswordChangeNotAllowedException();
+        }
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+    }
+
+    /** Remplace l'URL d'avatar (null = suppression) et renvoie l'ancienne pour nettoyage disque. */
+    @Transactional
+    public String updateAvatarUrl(String email, String avatarUrl) {
+        User user = findByEmail(email);
+        String previous = user.getAvatarUrl();
+        user.setAvatarUrl(avatarUrl);
+        return previous;
+    }
+
+    /** Remplace l'URL de bannière (null = suppression) et renvoie l'ancienne pour nettoyage disque. */
+    @Transactional
+    public String updateBannerUrl(String email, String bannerUrl) {
+        User user = findByEmail(email);
+        String previous = user.getBannerUrl();
+        user.setBannerUrl(bannerUrl);
+        return previous;
+    }
+
 }
