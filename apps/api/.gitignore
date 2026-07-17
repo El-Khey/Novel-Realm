@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Uploads utilisateurs (avatars, bannieres) — servis en statique, jamais commites
+uploads/

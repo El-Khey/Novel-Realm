@@ -5,6 +5,7 @@ import com.novelrealm.dto.RegisterRequest;
 import com.novelrealm.dto.UserResponse;
 import com.novelrealm.model.User;
 import com.novelrealm.service.AuthenticationService;
+import com.novelrealm.service.UserMapper;
 import com.novelrealm.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,10 +26,15 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthenticationService authenticationService;
+    private final UserMapper userMapper;
 
-    public AuthController(UserService userService, AuthenticationService authenticationService) {
+    public AuthController(
+            UserService userService,
+            AuthenticationService authenticationService,
+            UserMapper userMapper) {
         this.userService = userService;
         this.authenticationService = authenticationService;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/register")
@@ -39,15 +45,9 @@ public class AuthController {
                 request.password(),
                 User.AuthProvider.LOCAL); // ← inscription classique = compte LOCAL
 
-        UserResponse body = new UserResponse(
-                user.getId(),
-                user.getPseudo(),
-                user.getEmail(),
-                user.getCreatedAt());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toOwnResponse(user));
     }
-    
+
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(
             @Valid @RequestBody LoginRequest request,
@@ -57,16 +57,10 @@ public class AuthController {
         // 1. Vérifier les identifiants
         User user = userService.login(request.email(), request.password());
 
-        // 2. Créer la session + le cookie 
+        // 2. Créer la session + le cookie
         authenticationService.authenticate(user, httpRequest, httpResponse);
 
-        UserResponse body = new UserResponse(
-                user.getId(),
-                user.getPseudo(),
-                user.getEmail(),
-                user.getCreatedAt());
-
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(userMapper.toOwnResponse(user));
     }
 
     @PostMapping("/logout")

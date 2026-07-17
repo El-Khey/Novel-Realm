@@ -16,6 +16,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { UserAvatar } from "@/features/profile/components/UserAvatar";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
@@ -86,8 +87,6 @@ export default function Navbar() {
         setMobileOpen(false);
     }
 
-    const initials = user ? user.pseudo.trim().slice(0, 2).toUpperCase() : "";
-
     return (
         <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -146,9 +145,13 @@ export default function Navbar() {
                             aria-expanded={menuOpen}
                             className="flex items-center gap-2 rounded-full p-1 pr-2 text-sm transition-colors hover:bg-secondary"
                         >
-                            <span className="grid size-8 place-items-center rounded-full bg-linear-to-br from-primary to-primary-active text-xs font-bold text-primary-foreground">
-                                {initials}
-                            </span>
+                            {user && (
+                                <UserAvatar
+                                    pseudo={user.pseudo}
+                                    avatarUrl={user.avatarUrl}
+                                    className="size-8"
+                                />
+                            )}
                             <span className="hidden max-w-28 truncate font-semibold lg:block">
                                 {user?.pseudo}
                             </span>
@@ -236,9 +239,13 @@ export default function Navbar() {
                                 onClick={() => setMobileOpen(false)}
                                 className="flex items-center gap-2 text-sm font-semibold"
                             >
-                                <span className="grid size-8 place-items-center rounded-full bg-linear-to-br from-primary to-primary-active text-xs font-bold text-primary-foreground">
-                                    {initials}
-                                </span>
+                                {user && (
+                                    <UserAvatar
+                                        pseudo={user.pseudo}
+                                        avatarUrl={user.avatarUrl}
+                                        className="size-8"
+                                    />
+                                )}
                                 {user?.pseudo}
                             </Link>
                             <button

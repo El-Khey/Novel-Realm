@@ -26,6 +26,9 @@ public interface ChapterFavoriteRepository extends JpaRepository<ChapterFavorite
     /** Le chapitre est-il déjà en favori pour cet utilisateur ? */
     boolean existsByUser_IdAndChapter_Id(Long userId, Long chapterId);
 
+    /** Nombre de chapitres favoris de l'utilisateur (stats du profil). */
+    long countByUser_Id(Long userId);
+
     /** Tous les favoris de l'utilisateur sur les chapitres d'un roman, plus récents en tête. */
     @EntityGraph(attributePaths = {"chapter", "chapter.novel"})
     List<ChapterFavorite> findByUser_IdAndChapter_Novel_IdOrderByFavoritedAtDesc(Long userId, Long novelId);

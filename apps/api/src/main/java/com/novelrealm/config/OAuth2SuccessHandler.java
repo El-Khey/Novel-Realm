@@ -42,9 +42,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
+        String picture = oauthUser.getAttribute("picture"); // avatar par défaut du compte
 
         // Notre logique : retrouver ou créer le compte (réconciliation par email).
-        User user = userService.loginWithGoogle(email, name);
+        User user = userService.loginWithGoogle(email, name, picture);
 
         // Créer NOTRE session (le même mécanisme que le login classique).
         authenticationService.authenticate(user, request, response);

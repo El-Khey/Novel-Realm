@@ -1,7 +1,14 @@
-/** Utilisateur authentifié, tel que renvoyé par l'API. */
+/** Utilisateur authentifié, tel que renvoyé par l'API (profil enrichi — issue #17). */
 export interface User {
     id: number;
     pseudo: string;
     email: string;
+    bio: string | null;
+    /** Chemin local (/uploads/…) ou URL externe (photo Google). */
+    avatarUrl: string | null;
+    bannerUrl: string | null;
+    provider: "LOCAL" | "GOOGLE";
+    /** Préférences JSON opaques (accent, réglages du lecteur…) — interprétées par features/profile. */
+    preferences: unknown;
     createdAt: string;
 }
