@@ -6,10 +6,14 @@ import {
     ArrowRight01Icon,
     ArrowUp01Icon,
     CheckmarkCircle02Icon,
+    Flag02Icon,
+    Home09Icon,
+    LeftToRightListBulletIcon,
     Settings02Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { getChapter } from "@/features/novels/chapter.service";
+import { getNovel } from "@/features/novels/novel.service";
 import { useChapters } from "@/features/novels/hooks/useChapters";
 import { useNovelProgress } from "@/features/progress/hooks/useNovelProgress";
 import type { ChapterDetail } from "@/features/novels/types";
@@ -44,6 +48,7 @@ export default function ChapterReaderPage() {
     const [progress, setProgress] = useState(0);
     const [headerHidden, setHeaderHidden] = useState(false);
     const [showTop, setShowTop] = useState(false);
+    const [novelTitle, setNovelTitle] = useState<string | null>(null);
 
     const loaded = state.status === "loaded";
     const restoredRef = useRef<number | null>(null);
@@ -72,6 +77,18 @@ export default function ChapterReaderPage() {
             active = false;
         };
     }, [id, validId]);
+
+    // Titre du roman (pour l'en-tête).
+    useEffect(() => {
+        if (!Number.isInteger(novelId) || novelId <= 0) return;
+        let active = true;
+        getNovel(novelId)
+            .then((n) => active && setNovelTitle(n.title))
+            .catch(() => {});
+        return () => {
+            active = false;
+        };
+    }, [novelId]);
 
     // Restaure la position de reprise une fois chapitre + progression chargés.
     useEffect(() => {
@@ -191,12 +208,26 @@ export default function ChapterReaderPage() {
 
     return (
         <div className="dark relative min-h-screen" style={rootStyle}>
-            {/* Barre de progression de lecture */}
-            <div className="fixed inset-x-0 top-0 z-50 h-0.5">
+            {/* Progression de lecture : rail vertical à gauche + pourcentage */}
+            <div className="fixed left-4 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-center gap-2 md:flex">
                 <div
-                    className="h-full bg-primary transition-[width] duration-150 ease-out"
-                    style={{ width: `${progress}%` }}
-                />
+                    className="relative w-1 overflow-hidden rounded-full"
+                    style={{
+                        height: "9rem",
+                        background: "color-mix(in srgb, var(--reader-fg) 14%, transparent)",
+                    }}
+                >
+                    <div
+                        className="absolute inset-x-0 top-0 rounded-full bg-primary transition-[height] duration-150 ease-out motion-reduce:transition-none"
+                        style={{ height: `${progress}%` }}
+                    />
+                </div>
+                <span
+                    className="text-[11px] font-medium tabular-nums"
+                    style={{ color: "var(--reader-fg)", opacity: 0.55 }}
+                >
+                    {Math.round(progress)}%
+                </span>
             </div>
 
             {/* En-tête (masqué en mode focus, auto-masqué au défilement) */}
@@ -212,46 +243,51 @@ export default function ChapterReaderPage() {
                         headerHidden && "-translate-y-full",
                     )}
                 >
-                    <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4 sm:px-6">
+                    <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-3 sm:gap-3 sm:px-5">
+                        {/* Retour au roman */}
                         <Link
                             to={`/novels/${novelId}`}
-                            className="inline-flex shrink-0 items-center gap-1.5 text-sm opacity-80 transition-opacity hover:opacity-100"
+                            aria-label="Retour au roman"
+                            className="grid size-9 shrink-0 place-items-center rounded-full opacity-75 transition-opacity hover:opacity-100"
                         >
-                            <Icon icon={ArrowLeft01Icon} size={18} />
-                            <span className="hidden sm:inline">Retour</span>
+                            <Icon icon={ArrowLeft01Icon} size={20} />
                         </Link>
 
-                        <div className="min-w-0 flex-1 text-center">
+                        {/* Titre du roman + chapitre */}
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold leading-tight">
+                                {novelTitle ?? " "}
+                            </p>
                             {loaded && (
-                                <>
-                                    <p className="truncate text-[11px] uppercase tracking-wide opacity-60">
-                                        Chapitre {state.chapter.chapterNumber}
-                                    </p>
-                                    <p className="truncate text-sm font-semibold">{state.chapter.title}</p>
-                                </>
+                                <p className="truncate text-xs leading-tight opacity-55">
+                                    Chapitre {state.chapter.chapterNumber}
+                                </p>
                             )}
                         </div>
 
-                        {loaded && (
-                            <button
-                                type="button"
-                                onClick={() => setRead(id, !isRead)}
-                                aria-pressed={isRead}
-                                title={isRead ? "Marqué comme lu" : "Marquer comme lu"}
-                                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-100"
-                                style={{
-                                    borderColor: "color-mix(in srgb, var(--reader-fg) 20%, transparent)",
-                                    opacity: isRead ? 1 : 0.75,
-                                }}
-                            >
-                                <Icon
+                        {/* Actions */}
+                        <div className="flex shrink-0 items-center gap-0.5">
+                            <HeaderIcon icon={Home09Icon} label="Accueil" onClick={() => navigate("/")} />
+                            <HeaderIcon
+                                icon={LeftToRightListBulletIcon}
+                                label="Liste des chapitres"
+                                onClick={() => navigate(`/novels/${novelId}`)}
+                            />
+                            {loaded && (
+                                <HeaderIcon
                                     icon={CheckmarkCircle02Icon}
-                                    size={15}
-                                    className={isRead ? "text-primary" : undefined}
+                                    label={isRead ? "Marqué comme lu" : "Marquer comme lu"}
+                                    active={isRead}
+                                    onClick={() => setRead(id, !isRead)}
                                 />
-                                <span className="hidden sm:inline">{isRead ? "Lu" : "Marquer lu"}</span>
-                            </button>
-                        )}
+                            )}
+                            <HeaderIcon
+                                icon={Settings02Icon}
+                                label="Réglages de lecture"
+                                onClick={() => setSettingsOpen(true)}
+                            />
+                            <HeaderIcon icon={Flag02Icon} label="Signaler (bientôt)" onClick={() => {}} />
+                        </div>
                     </div>
                 </header>
             )}
@@ -282,7 +318,11 @@ export default function ChapterReaderPage() {
                             {state.chapter.title}
                         </h1>
 
-                        <ChapterNav novelId={novelId} prevId={prevId} nextId={nextId} />
+                        {/* Fin séparateur sous le titre (pas de nav en haut). */}
+                        <div
+                            className="mt-6 mb-9 h-px"
+                            style={{ background: "color-mix(in srgb, var(--reader-fg) 14%, transparent)" }}
+                        />
 
                         <div style={proseStyle}>
                             {paragraphs.map((p, i) => (
@@ -334,6 +374,35 @@ function ReaderMessage({ children }: { children: React.ReactNode }) {
         <p className="py-20 text-center text-sm" style={{ color: "var(--reader-fg)", opacity: 0.7 }}>
             {children}
         </p>
+    );
+}
+
+function HeaderIcon({
+    icon,
+    label,
+    onClick,
+    active,
+}: {
+    icon: IconSvgElement;
+    label: string;
+    onClick: () => void;
+    active?: boolean;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-label={label}
+            aria-pressed={active}
+            title={label}
+            className={cn(
+                "grid size-9 place-items-center rounded-full transition-opacity",
+                active ? "opacity-100" : "opacity-70 hover:opacity-100",
+            )}
+            style={{ color: "var(--reader-fg)" }}
+        >
+            <Icon icon={icon} size={19} className={active ? "text-primary" : undefined} />
+        </button>
     );
 }
 
