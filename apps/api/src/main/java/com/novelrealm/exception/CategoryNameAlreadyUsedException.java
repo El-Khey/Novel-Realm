@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class CategoryNameAlreadyUsedException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public CategoryNameAlreadyUsedException(String name) {
         super("Vous avez déjà une étagère nommée « " + name + " »");
     }

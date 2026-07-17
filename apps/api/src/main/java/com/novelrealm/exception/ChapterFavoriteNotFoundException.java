@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class ChapterFavoriteNotFoundException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public ChapterFavoriteNotFoundException(Long chapterId) {
         super("Ce chapitre (id " + chapterId + ") n'est pas dans vos favoris");
     }

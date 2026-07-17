@@ -14,6 +14,16 @@ export function addToLibrary(novelId: number, status?: ReadingStatus): Promise<L
     });
 }
 
+export function updateLibraryStatus(
+    novelId: number,
+    status: ReadingStatus,
+): Promise<LibraryEntry> {
+    return request<LibraryEntry>(`/library/${novelId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+    });
+}
+
 export function removeFromLibrary(novelId: number): Promise<void> {
     // 204 No Content → pas de corps à parser.
     return requestNoContent(`/library/${novelId}`, { method: "DELETE" });

@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class InvalidUploadException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public InvalidUploadException(String message) {
         super(message);
     }

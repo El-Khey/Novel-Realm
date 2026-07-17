@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class LibraryEntryNotFoundException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public LibraryEntryNotFoundException(Long novelId) {
         super("Ce roman (id " + novelId + ") n'est pas dans votre bibliothèque");
     }

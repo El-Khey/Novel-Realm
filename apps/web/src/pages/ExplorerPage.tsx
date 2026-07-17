@@ -105,8 +105,15 @@ export default function ExplorerPage() {
         status: status || undefined,
         sort,
     });
-    const { categories, libraryIds, toggleLibrary, toggleCategory, createCategoryWithNovel } =
-        useLibraryManager();
+    const {
+        categories,
+        libraryIds,
+        statusByNovel,
+        toggleLibrary,
+        changeStatus,
+        toggleCategory,
+        createCategoryWithNovel,
+    } = useLibraryManager();
     const { remainingByNovel } = useProgressSummary();
 
     const activeGenre = genreId != null ? genres?.find((g) => g.id === genreId) ?? null : null;
@@ -336,9 +343,13 @@ export default function ExplorerPage() {
                                         libraryIds={libraryIds}
                                         categories={categories}
                                         remaining={remainingByNovel.get(novel.id)}
+                                        status={statusByNovel.get(novel.id)}
                                         onToggleLibrary={toggleLibrary}
                                         onToggleCategory={toggleCategory}
                                         onCreateCategory={createCategoryWithNovel}
+                                        onChangeStatus={async (novelId, s) => {
+                                            await changeStatus(novelId, s);
+                                        }}
                                     />
                                 ))}
                             </div>

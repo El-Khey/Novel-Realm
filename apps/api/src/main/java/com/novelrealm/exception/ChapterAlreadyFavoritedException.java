@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class ChapterAlreadyFavoritedException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public ChapterAlreadyFavoritedException(Long chapterId) {
         super("Ce chapitre (id " + chapterId + ") est déjà dans vos favoris");
     }

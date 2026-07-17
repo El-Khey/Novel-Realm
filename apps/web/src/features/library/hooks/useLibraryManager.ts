@@ -9,7 +9,7 @@ import { useCategories } from "@/features/categories/hooks/useCategories";
  * bibliothèque (pour qu'il apparaisse dans « Tous »).
  */
 export function useLibraryManager() {
-    const { entries, error: libError, add, remove } = useLibrary();
+    const { entries, error: libError, add, changeStatus, remove } = useLibrary();
     const {
         categories,
         error: catError,
@@ -22,6 +22,8 @@ export function useLibraryManager() {
 
     const cats = categories ?? [];
     const libraryIds = new Set((entries ?? []).map((e) => e.novel.id));
+    /** novelId → statut de lecture (uniquement les romans en bibliothèque). */
+    const statusByNovel = new Map((entries ?? []).map((e) => [e.novel.id, e.status]));
 
     async function toggleLibrary(novelId: number, next: boolean) {
         if (next) await add(novelId);
@@ -49,7 +51,9 @@ export function useLibraryManager() {
         libError,
         catError,
         libraryIds,
+        statusByNovel,
         toggleLibrary,
+        changeStatus,
         toggleCategory,
         createCategoryWithNovel,
         // gestion des étagères elles-mêmes (page Bibliothèque)

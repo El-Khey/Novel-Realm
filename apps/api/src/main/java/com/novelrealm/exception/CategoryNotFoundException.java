@@ -7,6 +7,8 @@ package com.novelrealm.exception;
  */
 public class CategoryNotFoundException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public CategoryNotFoundException(Long id) {
         super("Aucune étagère trouvée avec l'id " + id);
     }

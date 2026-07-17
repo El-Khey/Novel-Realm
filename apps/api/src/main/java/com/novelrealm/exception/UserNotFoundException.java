@@ -2,6 +2,8 @@ package com.novelrealm.exception;
 
 public class UserNotFoundException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public UserNotFoundException(Long id) {
         super("Aucun utilisateur trouvé avec l'id " + id);
     }

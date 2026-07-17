@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class InvalidProfileFieldException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public InvalidProfileFieldException(String message) {
         super(message);
     }

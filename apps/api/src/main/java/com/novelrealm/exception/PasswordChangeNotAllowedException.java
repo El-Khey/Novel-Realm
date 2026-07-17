@@ -6,6 +6,8 @@ package com.novelrealm.exception;
  */
 public class PasswordChangeNotAllowedException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public PasswordChangeNotAllowedException() {
         super("Ce compte utilise la connexion Google : le mot de passe se gère chez Google");
     }

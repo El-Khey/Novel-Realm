@@ -3,6 +3,7 @@ import {
     addToLibrary,
     getLibrary,
     removeFromLibrary,
+    updateLibraryStatus,
 } from "@/features/library/library.service";
 import type { LibraryEntry, ReadingStatus } from "@/features/library/types";
 
@@ -35,10 +36,18 @@ export function useLibrary() {
         return entry;
     }
 
+    async function changeStatus(novelId: number, status: ReadingStatus) {
+        const updated = await updateLibraryStatus(novelId, status);
+        setEntries((prev) =>
+            prev?.map((e) => (e.novel.id === novelId ? updated : e)) ?? null,
+        );
+        return updated;
+    }
+
     async function remove(novelId: number) {
         await removeFromLibrary(novelId);
         setEntries((prev) => prev?.filter((e) => e.novel.id !== novelId) ?? null);
     }
 
-    return { entries, error, add, remove };
+    return { entries, error, add, changeStatus, remove };
 }

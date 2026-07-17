@@ -12,6 +12,8 @@ import java.util.Objects;
  */
 public class ChapterFavoriteId implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private Long user;
     private Long chapter;
 
