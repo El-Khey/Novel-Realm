@@ -31,6 +31,15 @@ export function getMyStats(): Promise<UserStats> {
     return request<UserStats>("/users/me/stats");
 }
 
+/**
+ * Supprime DÉFINITIVEMENT le compte et toutes les données rattachées.
+ * Le serveur ferme la session au passage : l'appelant n'a plus qu'à nettoyer
+ * l'état local et rediriger.
+ */
+export function deleteAccount(): Promise<void> {
+    return requestNoContent("/users/me", { method: "DELETE" });
+}
+
 // ── Avatar & bannière (multipart) ───────────────────────────────────
 
 export function uploadAvatar(file: File): Promise<User> {

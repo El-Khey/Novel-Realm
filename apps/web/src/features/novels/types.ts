@@ -11,9 +11,17 @@ export interface Novel {
     createdAt: string;
 }
 
-/** Détail d'un roman (fiche) : le roman + ses genres. Renvoyé par GET /novels/{id}. */
+/**
+ * Détail d'un roman (fiche) : le roman, ses genres et sa note moyenne.
+ * Renvoyé par GET /novels/{id}.
+ *
+ * `averageRating` vaut 0 tant qu'aucun avis n'existe — c'est `ratingCount`
+ * qui distingue « pas encore noté » de « mal noté ».
+ */
 export interface NovelDetail extends Novel {
     genres: Genre[];
+    averageRating: number;
+    ratingCount: number;
 }
 
 /** Chapitre (version liste, sans contenu) — miroir de ChapterResponse côté API */

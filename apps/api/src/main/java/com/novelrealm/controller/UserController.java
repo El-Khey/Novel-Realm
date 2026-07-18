@@ -6,11 +6,14 @@ import com.novelrealm.dto.UserResponse;
 import com.novelrealm.dto.UserStatsResponse;
 import com.novelrealm.exception.InvalidProfileFieldException;
 import com.novelrealm.model.User;
+import com.novelrealm.service.AuthenticationService;
 import com.novelrealm.service.FileStorageService;
 import com.novelrealm.service.UserMapper;
 import com.novelrealm.service.UserService;
 import com.novelrealm.service.UserStatsService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -35,16 +38,19 @@ public class UserController {
     private final UserMapper userMapper;
     private final UserStatsService userStatsService;
     private final FileStorageService fileStorageService;
+    private final AuthenticationService authenticationService;
 
     public UserController(
             UserService userService,
             UserMapper userMapper,
             UserStatsService userStatsService,
-            FileStorageService fileStorageService) {
+            FileStorageService fileStorageService,
+            AuthenticationService authenticationService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.userStatsService = userStatsService;
         this.fileStorageService = fileStorageService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping
@@ -95,6 +101,22 @@ public class UserController {
     @GetMapping("/me/stats")
     public ResponseEntity<UserStatsResponse> myStats(Authentication authentication) {
         return ResponseEntity.ok(userStatsService.getStats(authentication.getName()));
+    }
+
+    /**
+     * DELETE /api/users/me — supprime définitivement le compte (RGPD).
+     * Efface les données (cascade SQL), les fichiers importés, puis ferme la
+     * session : le client se retrouve déconnecté sans appel supplémentaire.
+     */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(
+            Authentication authentication,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        List<String> uploads = userService.deleteAccount(authentication.getName());
+        uploads.forEach(fileStorageService::deleteIfLocal);
+        authenticationService.logout(request, response);
+        return ResponseEntity.noContent().build();
     }
 
     // ── Avatar & bannière ───────────────────────────────────────────

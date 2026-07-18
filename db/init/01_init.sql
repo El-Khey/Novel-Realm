@@ -115,3 +115,21 @@ CREATE TABLE IF NOT EXISTS chapter_favorite (
     favorited_at  TIMESTAMP NOT NULL,                    -- tri "ajoutés récemment"
     PRIMARY KEY (user_id, chapter_id)
 );
+
+-- ──────────────────────── Avis sur un roman ─────────────────────────
+-- Une note (1 à 5 étoiles) + un commentaire facultatif. UN SEUL avis par
+-- couple (utilisateur, roman) : on modifie le sien, on n'en empile pas.
+CREATE TABLE IF NOT EXISTS review (
+    id          BIGSERIAL PRIMARY KEY,
+    user_id     BIGINT   NOT NULL REFERENCES users(id)  ON DELETE CASCADE,
+    novel_id    BIGINT   NOT NULL REFERENCES novels(id) ON DELETE CASCADE,
+    rating      SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    body        TEXT,                                    -- commentaire (facultatif)
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    UNIQUE (user_id, novel_id)
+);
+
+-- Liste des avis d'un roman, les plus récents d'abord (page « fiche »).
+CREATE INDEX IF NOT EXISTS idx_review_novel_created
+    ON review (novel_id, created_at DESC);

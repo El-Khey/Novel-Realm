@@ -17,15 +17,19 @@ import com.novelrealm.dto.NovelResponse;
 import com.novelrealm.dto.PageResponse;
 import com.novelrealm.model.Novel;
 import com.novelrealm.model.Novel.NovelStatus;
+import com.novelrealm.repository.ReviewRepository.RatingSummary;
 import com.novelrealm.service.NovelService;
+import com.novelrealm.service.ReviewService;
 
 @RestController
 @RequestMapping("/api/novels")
 public class NovelController {
     private final NovelService novelService;
+    private final ReviewService reviewService;
 
-    public NovelController(NovelService novelService) {
+    public NovelController(NovelService novelService, ReviewService reviewService) {
         this.novelService = novelService;
+        this.reviewService = reviewService;
     }
 
     /**
@@ -52,10 +56,11 @@ public class NovelController {
         return ResponseEntity.ok(PageResponse.from(result));
     }
 
-    /** Fiche détail d'un roman (avec ses genres). */
+    /** Fiche détail d'un roman (genres + note moyenne). */
     @GetMapping("/{id}")
     public ResponseEntity<NovelDetailResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(toDetailResponse(novelService.findWithGenresById(id)));
+        Novel novel = novelService.findWithGenresById(id);
+        return ResponseEntity.ok(toDetailResponse(novel, reviewService.summarize(id)));
     }
 
     /** Entité → DTO (résumé de roman). */
@@ -70,8 +75,8 @@ public class NovelController {
                 novel.getCreatedAt());
     }
 
-    /** Entité → DTO détail (résumé + genres triés par nom). */
-    private static NovelDetailResponse toDetailResponse(Novel novel) {
+    /** Entité → DTO détail (résumé + genres triés par nom + note moyenne). */
+    private static NovelDetailResponse toDetailResponse(Novel novel, RatingSummary rating) {
         List<GenreResponse> genres = novel.getGenres().stream()
                 .map(g -> new GenreResponse(g.getId(), g.getName()))
                 .sorted(Comparator.comparing(GenreResponse::name))
@@ -84,6 +89,8 @@ public class NovelController {
                 novel.getCoverUrl(),
                 novel.getStatus(),
                 novel.getCreatedAt(),
-                genres);
+                genres,
+                rating.getAverage(),
+                rating.getCount());
     }
 }

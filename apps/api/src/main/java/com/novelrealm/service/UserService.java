@@ -13,6 +13,8 @@ import com.novelrealm.exception.InvalidCredentialsException;
 import com.novelrealm.model.User.AuthProvider;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -163,4 +165,21 @@ public class UserService {
         return previous;
     }
 
+    /**
+     * Supprime DÉFINITIVEMENT le compte. Tout ce qui en dépend (bibliothèque,
+     * étagères, progression, favoris, avis) part avec lui : les clés étrangères
+     * sont déclarées {@code ON DELETE CASCADE} côté base.
+     *
+     * @return les URLs des fichiers importés (avatar, bannière) que l'appelant
+     *         doit effacer du disque — la base ne les nettoie pas.
+     */
+    @Transactional
+    public List<String> deleteAccount(String email) {
+        User user = findByEmail(email);
+        List<String> uploads = Stream.of(user.getAvatarUrl(), user.getBannerUrl())
+                .filter(Objects::nonNull)
+                .toList();
+        userRepository.delete(user);
+        return uploads;
+    }
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+    Alert02Icon,
+    Delete02Icon,
     GoogleIcon,
     Logout01Icon,
     Mail01Icon,
@@ -10,8 +12,9 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { User } from "@/features/auth/types";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { changePassword } from "@/features/profile/profile.service";
+import { changePassword, deleteAccount } from "@/features/profile/profile.service";
 import { ApiError } from "@/lib/http";
+import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 
@@ -86,7 +89,122 @@ export function AccountSettings({ user }: Props) {
                     Se déconnecter
                 </Button>
             </section>
+
+            {/* Zone de danger */}
+            <DangerZone user={user} />
         </div>
+    );
+}
+
+/* --------------------------- zone de danger --------------------------- */
+
+/**
+ * Suppression définitive du compte. Double garde-fou contre le clic malheureux :
+ * une modale de confirmation, dans laquelle il faut RECOPIER son pseudo pour
+ * débloquer le bouton (même principe que GitHub).
+ */
+function DangerZone({ user }: { user: User }) {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [confirmText, setConfirmText] = useState("");
+    const [deleting, setDeleting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const matches = confirmText.trim() === user.pseudo;
+
+    function close() {
+        setOpen(false);
+        setConfirmText("");
+        setError(null);
+    }
+
+    async function handleDelete() {
+        if (!matches || deleting) return;
+        setDeleting(true);
+        setError(null);
+        try {
+            await deleteAccount();
+            // Le serveur a déjà fermé la session ; on nettoie l'état local.
+            await logout();
+            navigate("/login", { replace: true });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Erreur inconnue");
+            setDeleting(false);
+        }
+    }
+
+    return (
+        <>
+            <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 sm:p-7">
+                <h2 className="flex items-center gap-2 font-heading text-base font-bold text-destructive">
+                    <Icon icon={Alert02Icon} size={17} />
+                    Zone de danger
+                </h2>
+                <p className="mt-0.5 max-w-prose text-sm text-muted-foreground">
+                    La suppression de votre compte est <strong className="text-foreground">définitive</strong>.
+                    Votre bibliothèque, vos étagères, votre progression de lecture, vos favoris et vos
+                    avis seront effacés. Cette action ne peut pas être annulée.
+                </p>
+                <Button variant="destructive" className="mt-4" onClick={() => setOpen(true)}>
+                    <Icon icon={Delete02Icon} size={16} />
+                    Supprimer mon compte
+                </Button>
+            </section>
+
+            <Modal
+                open={open}
+                onClose={close}
+                title="Supprimer définitivement votre compte ?"
+                description="Cette action est irréversible — il n'y a aucun moyen de récupérer vos données ensuite."
+            >
+                <div className="space-y-4">
+                    <ul className="space-y-1.5 rounded-xl border border-border bg-secondary/40 p-4 text-sm text-muted-foreground">
+                        <li>• Vos romans suivis et vos étagères</li>
+                        <li>• Votre progression de lecture et votre historique</li>
+                        <li>• Vos chapitres favoris et vos avis</li>
+                        <li>• Votre avatar, votre bannière et vos préférences</li>
+                    </ul>
+
+                    <div className="space-y-1.5">
+                        <label htmlFor="confirm-suppression" className="block text-sm">
+                            Pour confirmer, saisissez{" "}
+                            <span className="font-semibold text-foreground">{user.pseudo}</span> :
+                        </label>
+                        <input
+                            id="confirm-suppression"
+                            value={confirmText}
+                            onChange={(e) => setConfirmText(e.target.value)}
+                            autoComplete="off"
+                            placeholder={user.pseudo}
+                            className="h-11 w-full rounded-xl border border-transparent bg-secondary px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-destructive/60 focus:bg-input"
+                        />
+                    </div>
+
+                    {error && (
+                        <p role="alert" className="text-sm text-destructive">
+                            {error}
+                        </p>
+                    )}
+
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" variant="ghost" className="rounded-full" onClick={close}>
+                            Annuler
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={!matches || deleting}
+                            className="rounded-full px-5"
+                            onClick={() => void handleDelete()}
+                        >
+                            {deleting ? "Suppression…" : "Supprimer définitivement"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+        </>
     );
 }
 

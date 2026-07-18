@@ -10,6 +10,7 @@ import {
 import { NovelCover } from "@/features/novels/components/NovelCover";
 import { NOVEL_STATUS } from "@/features/novels/status";
 import type { NovelDetail } from "@/features/novels/types";
+import { StarRating } from "@/features/reviews/components/StarRating";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +119,15 @@ export function NovelHero({ novel, chapterCount, readCount, resumeTo, resumeLabe
                                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                                     <Icon icon={BookOpen01Icon} size={14} />
                                     {chapterCount} chapitre{chapterCount > 1 ? "s" : ""}
+                                </span>
+                            )}
+                            {novel.ratingCount > 0 && (
+                                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                                    <StarRating value={novel.averageRating} size={13} />
+                                    <span className="font-semibold text-foreground">
+                                        {novel.averageRating.toFixed(1)}
+                                    </span>
+                                    ({novel.ratingCount})
                                 </span>
                             )}
                         </div>

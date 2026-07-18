@@ -7,6 +7,7 @@ import { ChapterList } from "@/features/novels/components/ChapterList";
 import { useChapters } from "@/features/novels/hooks/useChapters";
 import { useNovelProgress } from "@/features/progress/hooks/useNovelProgress";
 import { useChapterFavorites } from "@/features/favorites/hooks/useChapterFavorites";
+import { ReviewSection } from "@/features/reviews/components/ReviewSection";
 import { ApiError } from "@/lib/http";
 import AppLayout from "@/components/ui/AppLayout";
 
@@ -73,13 +74,30 @@ export default function NovelDetailPage() {
 
     return (
         <AppLayout>
-            <NovelDetailView novel={state.novel} />
+            <NovelDetailView
+                novel={state.novel}
+                // Après un avis, on recharge la fiche : la moyenne est calculée
+                // par le serveur, on ne la recalcule jamais côté client.
+                onRatingChanged={() => {
+                    getNovel(novelId)
+                        .then((novel) => setState({ status: "loaded", novel }))
+                        .catch(() => {
+                            /* la moyenne affichée reste celle d'avant : sans gravité */
+                        });
+                }}
+            />
         </AppLayout>
     );
 }
 
 /** Vue « chargée » : centralise les données (chapitres, progression, favoris). */
-function NovelDetailView({ novel }: { novel: NovelDetail }) {
+function NovelDetailView({
+    novel,
+    onRatingChanged,
+}: {
+    novel: NovelDetail;
+    onRatingChanged: () => void;
+}) {
     const { chapters, error } = useChapters(novel.id);
     const { readIds, setRead, setReadBatch } = useNovelProgress(novel.id);
     const { favoriteIds, toggleFavorite } = useChapterFavorites(novel.id);
@@ -100,7 +118,7 @@ function NovelDetailView({ novel }: { novel: NovelDetail }) {
                 resumeLabel={allRead ? "Relire depuis le début" : "Continuer la lecture"}
             />
 
-            <div className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+            <div className="mx-auto max-w-5xl space-y-10 px-4 pb-16 sm:px-6">
                 <ChapterList
                     novelId={novel.id}
                     chapters={chapters}
@@ -110,6 +128,13 @@ function NovelDetailView({ novel }: { novel: NovelDetail }) {
                     onToggleRead={setRead}
                     onToggleFavorite={toggleFavorite}
                     onMarkBatch={setReadBatch}
+                />
+
+                <ReviewSection
+                    novelId={novel.id}
+                    averageRating={novel.averageRating}
+                    ratingCount={novel.ratingCount}
+                    onReviewChanged={onRatingChanged}
                 />
             </div>
         </>
