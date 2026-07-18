@@ -1,5 +1,6 @@
 package com.novelrealm.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -35,9 +36,28 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             """)
     RatingSummary summarizeByNovelId(@Param("novelId") Long novelId);
 
+    /**
+     * Nombre d'avis PAR note (1 à 5), pour l'histogramme de répartition.
+     * Les notes sans aucun avis sont simplement absentes du résultat.
+     */
+    @Query("""
+            select r.rating as rating, count(r) as count
+            from Review r
+            where r.novel.id = :novelId
+            group by r.rating
+            """)
+    List<RatingBucket> countByRating(@Param("novelId") Long novelId);
+
     /** Projection du couple (moyenne, nombre) renvoyé par {@link #summarizeByNovelId}. */
     interface RatingSummary {
         double getAverage();
+
+        long getCount();
+    }
+
+    /** Projection d'une barre de l'histogramme : une note et son nombre d'avis. */
+    interface RatingBucket {
+        int getRating();
 
         long getCount();
     }

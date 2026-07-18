@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.novelrealm.dto.PageResponse;
 import com.novelrealm.dto.ReviewResponse;
+import com.novelrealm.dto.ReviewSummaryResponse;
 import com.novelrealm.dto.UpsertReviewRequest;
 import com.novelrealm.model.Review;
 import com.novelrealm.model.User;
@@ -45,6 +46,12 @@ public class ReviewController {
         Page<ReviewResponse> body = reviewService.listForNovel(novelId, page, size)
                 .map(ReviewController::toResponse);
         return ResponseEntity.ok(PageResponse.from(body));
+    }
+
+    /** GET /api/novels/{novelId}/reviews/summary — moyenne, total et répartition. */
+    @GetMapping("/summary")
+    public ResponseEntity<ReviewSummaryResponse> summary(@PathVariable Long novelId) {
+        return ResponseEntity.ok(reviewService.summarizeWithDistribution(novelId));
     }
 
     /** GET /api/novels/{novelId}/reviews/me — mon avis (404 si je n'en ai pas). */

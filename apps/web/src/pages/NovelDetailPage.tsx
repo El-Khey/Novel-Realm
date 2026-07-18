@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { LeftToRightListBulletIcon, StarIcon } from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
 import { getNovel } from "@/features/novels/novel.service";
 import type { NovelDetail } from "@/features/novels/types";
 import { NovelHero } from "@/features/novels/components/NovelHero";
@@ -9,7 +11,12 @@ import { useNovelProgress } from "@/features/progress/hooks/useNovelProgress";
 import { useChapterFavorites } from "@/features/favorites/hooks/useChapterFavorites";
 import { ReviewSection } from "@/features/reviews/components/ReviewSection";
 import { ApiError } from "@/lib/http";
+import { Icon } from "@/components/ui/icon";
 import AppLayout from "@/components/ui/AppLayout";
+import { cn } from "@/lib/utils";
+
+/** Onglet affiché sous l'en-tête de la fiche. */
+type NovelTab = "chapitres" | "avis";
 
 type LoadState =
     | { status: "loading" }
@@ -102,6 +109,22 @@ function NovelDetailView({
     const { readIds, setRead, setReadBatch } = useNovelProgress(novel.id);
     const { favoriteIds, toggleFavorite } = useChapterFavorites(novel.id);
 
+    // L'onglet vit dans l'URL (?tab=avis) : partageable et restauré au retour.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const tab: NovelTab = searchParams.get("tab") === "avis" ? "avis" : "chapitres";
+
+    function setTab(next: NovelTab) {
+        setSearchParams(
+            (prev) => {
+                const params = new URLSearchParams(prev);
+                if (next === "chapitres") params.delete("tab");
+                else params.set("tab", next);
+                return params;
+            },
+            { replace: true },
+        );
+    }
+
     // Reprise : premier chapitre non lu (ou le tout premier si tout est lu).
     const firstUnread = chapters?.find((c) => !readIds.has(c.id));
     const resumeChapter = firstUnread ?? (chapters && chapters.length > 0 ? chapters[0] : undefined);
@@ -118,26 +141,91 @@ function NovelDetailView({
                 resumeLabel={allRead ? "Relire depuis le début" : "Continuer la lecture"}
             />
 
-            <div className="mx-auto max-w-5xl space-y-10 px-4 pb-16 sm:px-6">
-                <ChapterList
-                    novelId={novel.id}
-                    chapters={chapters}
-                    error={error}
-                    readIds={readIds}
-                    favoriteIds={favoriteIds}
-                    onToggleRead={setRead}
-                    onToggleFavorite={toggleFavorite}
-                    onMarkBatch={setReadBatch}
-                />
+            {/* Barre d'onglets collante : avec des milliers de chapitres, les
+                avis doivent rester atteignables sans dérouler toute la liste. */}
+            <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm">
+                <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
+                    <div className="inline-flex items-center gap-1 rounded-full bg-secondary p-1">
+                        <TabButton
+                            icon={LeftToRightListBulletIcon}
+                            label="Chapitres"
+                            count={chapters?.length ?? null}
+                            active={tab === "chapitres"}
+                            onClick={() => setTab("chapitres")}
+                        />
+                        <TabButton
+                            icon={StarIcon}
+                            label="Avis"
+                            count={novel.ratingCount}
+                            active={tab === "avis"}
+                            onClick={() => setTab("avis")}
+                        />
+                    </div>
+                </div>
+            </div>
 
-                <ReviewSection
-                    novelId={novel.id}
-                    averageRating={novel.averageRating}
-                    ratingCount={novel.ratingCount}
-                    onReviewChanged={onRatingChanged}
-                />
+            <div className="mx-auto max-w-5xl px-4 pb-16 pt-3 sm:px-6">
+                {tab === "chapitres" ? (
+                    <ChapterList
+                        novelId={novel.id}
+                        chapters={chapters}
+                        error={error}
+                        readIds={readIds}
+                        favoriteIds={favoriteIds}
+                        onToggleRead={setRead}
+                        onToggleFavorite={toggleFavorite}
+                        onMarkBatch={setReadBatch}
+                    />
+                ) : (
+                    <ReviewSection novelId={novel.id} onReviewChanged={onRatingChanged} />
+                )}
             </div>
         </>
+    );
+}
+
+/** Onglet en pilule : icône + libellé + compteur. */
+function TabButton({
+    icon,
+    label,
+    count,
+    active,
+    onClick,
+}: {
+    icon: IconSvgElement;
+    label: string;
+    /** null tant que la donnée charge → le compteur est simplement masqué. */
+    count: number | null;
+    active: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-pressed={active}
+            className={cn(
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                active
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            )}
+        >
+            <Icon icon={icon} size={16} className={cn(active && "fill-current")} />
+            {label}
+            {count != null && (
+                <span
+                    className={cn(
+                        "rounded-full px-1.5 text-xs tabular-nums",
+                        active
+                            ? "bg-white/20 text-primary-foreground"
+                            : "bg-background/60 text-muted-foreground",
+                    )}
+                >
+                    {count}
+                </span>
+            )}
+        </button>
     );
 }
 

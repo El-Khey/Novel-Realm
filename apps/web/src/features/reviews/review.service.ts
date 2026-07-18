@@ -1,7 +1,12 @@
 import { request, requestNoContent, type PageResponse } from "@/lib/http";
-import type { Review } from "./types";
+import type { Review, ReviewSummary } from "./types";
 
 /** Points d'entrée HTTP des avis d'un roman. */
+
+/** Moyenne, total et répartition par note (pour l'histogramme). */
+export function getReviewSummary(novelId: number): Promise<ReviewSummary> {
+    return request<ReviewSummary>(`/novels/${novelId}/reviews/summary`);
+}
 
 export function getReviews(
     novelId: number,

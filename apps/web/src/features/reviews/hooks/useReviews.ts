@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
     deleteMyReview,
     getMyReview,
+    getReviewSummary,
     getReviews,
     upsertReview,
 } from "@/features/reviews/review.service";
-import type { Review } from "@/features/reviews/types";
+import type { Review, ReviewSummary } from "@/features/reviews/types";
 import { ApiError } from "@/lib/http";
 
 const PAGE_SIZE = 10;
@@ -24,24 +25,27 @@ export function useReviews(novelId: number) {
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
     const [myReview, setMyReview] = useState<Review | null>(null);
+    const [summary, setSummary] = useState<ReviewSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loadingMore, setLoadingMore] = useState(false);
 
-    /** (Re)charge la première page et mon avis. */
+    /** (Re)charge la première page, mon avis et la synthèse. */
     const reload = useCallback(async () => {
-        const [list, mine] = await Promise.all([
+        const [list, mine, stats] = await Promise.all([
             getReviews(novelId, 0, PAGE_SIZE),
             // 404 = « je n'ai pas encore donné d'avis », pas une erreur.
             getMyReview(novelId).catch((e) => {
                 if (e instanceof ApiError && e.status === 404) return null;
                 throw e;
             }),
+            getReviewSummary(novelId),
         ]);
         setReviews(list.content);
         setTotal(list.totalElements);
         setPage(0);
         setHasMore(list.totalPages > 1);
         setMyReview(mine);
+        setSummary(stats);
     }, [novelId]);
 
     useEffect(() => {
@@ -83,5 +87,16 @@ export function useReviews(novelId: number) {
         await reload();
     }
 
-    return { reviews, total, myReview, hasMore, loadingMore, error, loadMore, save, remove };
+    return {
+        reviews,
+        total,
+        myReview,
+        summary,
+        hasMore,
+        loadingMore,
+        error,
+        loadMore,
+        save,
+        remove,
+    };
 }

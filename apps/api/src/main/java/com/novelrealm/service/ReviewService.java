@@ -6,6 +6,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.novelrealm.dto.ReviewSummaryResponse;
 import com.novelrealm.exception.ReviewNotFoundException;
 import com.novelrealm.model.Novel;
 import com.novelrealm.model.Review;
@@ -84,6 +89,29 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewRepository.RatingSummary summarize(Long novelId) {
         return reviewRepository.summarizeByNovelId(novelId);
+    }
+
+    /**
+     * Synthèse complète pour l'histogramme : moyenne, total et répartition par
+     * note. Les cinq notes sont toujours présentes (à zéro si personne ne l'a
+     * donnée) pour que le client n'ait pas à compléter les trous.
+     */
+    @Transactional(readOnly = true)
+    public ReviewSummaryResponse summarizeWithDistribution(Long novelId) {
+        novelService.findById(novelId); // 404 si le roman n'existe pas
+
+        Map<Integer, Long> counts = reviewRepository.countByRating(novelId).stream()
+                .collect(Collectors.toMap(
+                        ReviewRepository.RatingBucket::getRating,
+                        ReviewRepository.RatingBucket::getCount));
+
+        Map<Integer, Long> distribution = new LinkedHashMap<>();
+        for (int star = 5; star >= 1; star--) {
+            distribution.put(star, counts.getOrDefault(star, 0L));
+        }
+
+        ReviewRepository.RatingSummary summary = reviewRepository.summarizeByNovelId(novelId);
+        return new ReviewSummaryResponse(summary.getAverage(), summary.getCount(), distribution);
     }
 
     private static String normalizeBody(String body) {
