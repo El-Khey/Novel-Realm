@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-    ArrowDown01Icon,
     ArrowRight01Icon,
     ArrowUpDownIcon,
     Bookshelf01Icon,
@@ -12,10 +11,8 @@ import {
     PencilEdit01Icon,
     Search01Icon,
     SearchRemoveIcon,
-    Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
-import { AnimatePresence, motion } from "motion/react";
 
 import { useLibraryManager } from "@/features/library/hooks/useLibraryManager";
 import { useProgressSummary } from "@/features/progress/hooks/useProgressSummary";
@@ -25,6 +22,7 @@ import { CreateCategoryForm } from "@/features/categories/components/CreateCateg
 import { AddToLibraryMenu } from "@/features/library/components/AddToLibraryMenu";
 import { NovelPosterMenu } from "@/components/content/NovelPosterMenu";
 import { NovelCover } from "@/features/novels/components/NovelCover";
+import { SelectMenu, type SelectOption } from "@/components/ui/SelectMenu";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -41,11 +39,11 @@ type SortOption = "recent" | "title" | "unread";
 type StatusFilter = "" | ReadingStatus;
 type ViewMode = "grid" | "list";
 
-const SORT_LABELS: Record<SortOption, string> = {
-    recent: "Récemment ajoutés",
-    title: "Titre (A→Z)",
-    unread: "À lire d'abord",
-};
+const SORT_OPTIONS: SelectOption<SortOption>[] = [
+    { value: "recent", label: "Récemment ajoutés" },
+    { value: "title", label: "Titre (A→Z)" },
+    { value: "unread", label: "À lire d'abord" },
+];
 
 /** Un élément affiché : le roman + son statut / sa date d'ajout en biblio. */
 interface DisplayItem {
@@ -304,7 +302,14 @@ export default function LibraryPage() {
                                 className="h-10 w-full rounded-xl border border-transparent bg-secondary pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring/60 focus:bg-input"
                             />
                         </div>
-                        <SortMenu sort={sort} onChange={setSort} />
+                        <SelectMenu
+                            value={sort}
+                            options={SORT_OPTIONS}
+                            onChange={setSort}
+                            label="Trier"
+                            icon={ArrowUpDownIcon}
+                            compactLabel
+                        />
                         <ViewToggle view={view} onChange={setView} />
                     </div>
 
@@ -525,91 +530,6 @@ function ShelfAction({
             <Icon icon={icon} size={14} />
             {label}
         </button>
-    );
-}
-
-/** Menu de tri custom (remplace le <select> natif) : bouton + popover stylé. */
-function SortMenu({ sort, onChange }: { sort: SortOption; onChange: (s: SortOption) => void }) {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!open) return;
-        function onClick(e: MouseEvent) {
-            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-        }
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") setOpen(false);
-        }
-        document.addEventListener("mousedown", onClick);
-        document.addEventListener("keydown", onKey);
-        return () => {
-            document.removeEventListener("mousedown", onClick);
-            document.removeEventListener("keydown", onKey);
-        };
-    }, [open]);
-
-    return (
-        <div ref={ref} className="relative shrink-0">
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={open}
-                aria-label="Trier"
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-secondary px-3.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-            >
-                <Icon icon={ArrowUpDownIcon} size={15} className="text-muted-foreground" />
-                <span className="hidden sm:block">{SORT_LABELS[sort]}</span>
-                <Icon
-                    icon={ArrowDown01Icon}
-                    size={15}
-                    className={cn("text-muted-foreground transition-transform", open && "rotate-180")}
-                />
-            </button>
-
-            <AnimatePresence>
-                {open && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -6, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        role="menu"
-                        className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-border bg-popover p-1.5 shadow-2xl shadow-black/50"
-                    >
-                        {(Object.keys(SORT_LABELS) as SortOption[]).map((option) => (
-                            <button
-                                key={option}
-                                type="button"
-                                role="menuitemradio"
-                                aria-checked={sort === option}
-                                onClick={() => {
-                                    onChange(option);
-                                    setOpen(false);
-                                }}
-                                className={cn(
-                                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-secondary",
-                                    sort === option
-                                        ? "font-semibold text-foreground"
-                                        : "text-muted-foreground hover:text-foreground",
-                                )}
-                            >
-                                {SORT_LABELS[option]}
-                                {sort === option && (
-                                    <Icon
-                                        icon={Tick02Icon}
-                                        size={15}
-                                        strokeWidth={2.5}
-                                        className="text-primary"
-                                    />
-                                )}
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
     );
 }
 

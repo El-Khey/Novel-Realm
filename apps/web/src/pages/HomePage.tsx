@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     ArrowRight01Icon,
+    ArrowUpDownIcon,
+    BookOpen01Icon,
     Clock01Icon,
     Compass01Icon,
     FireIcon,
@@ -9,6 +11,7 @@ import {
     Search01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
+import { SelectMenu, type SelectOption } from "@/components/ui/SelectMenu";
 
 import { useNovels } from "@/features/novels/hooks/useNovels";
 import { useGenres } from "@/features/genres/hooks/useGenres";
@@ -33,8 +36,17 @@ import AppLayout from "@/components/ui/AppLayout";
 type StatusFilter = "" | Novel["status"];
 type SortOption = "recent" | "title" | "popularity";
 
-const SELECT_CLASS =
-    "h-10 rounded-full border border-border bg-secondary px-4 text-sm font-medium text-foreground outline-none transition-colors hover:bg-accent focus:border-ring/60";
+const HOME_STATUS_OPTIONS: SelectOption<StatusFilter>[] = [
+    { value: "", label: "Tous les statuts" },
+    { value: "ONGOING", label: "En cours", dot: "bg-primary" },
+    { value: "COMPLETED", label: "Terminé", dot: "bg-emerald-400" },
+];
+
+const HOME_SORT_OPTIONS: SelectOption<SortOption>[] = [
+    { value: "recent", label: "Plus récents" },
+    { value: "title", label: "Titre (A→Z)" },
+    { value: "popularity", label: "Populaires" },
+];
 
 const GRID_CLASS =
     "grid grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
@@ -207,26 +219,22 @@ export default function HomePage() {
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <select
+                                <SelectMenu
                                     value={status}
-                                    onChange={(e) => setStatus(e.target.value as StatusFilter)}
-                                    aria-label="Filtrer par statut"
-                                    className={SELECT_CLASS}
-                                >
-                                    <option value="">Tous les statuts</option>
-                                    <option value="ONGOING">En cours</option>
-                                    <option value="COMPLETED">Terminé</option>
-                                </select>
-                                <select
+                                    options={HOME_STATUS_OPTIONS}
+                                    onChange={setStatus}
+                                    label="Filtrer par statut"
+                                    icon={BookOpen01Icon}
+                                    compactLabel
+                                />
+                                <SelectMenu
                                     value={sort}
-                                    onChange={(e) => setSort(e.target.value as SortOption)}
-                                    aria-label="Trier"
-                                    className={SELECT_CLASS}
-                                >
-                                    <option value="recent">Plus récents</option>
-                                    <option value="title">Titre (A→Z)</option>
-                                    <option value="popularity">Populaires</option>
-                                </select>
+                                    options={HOME_SORT_OPTIONS}
+                                    onChange={setSort}
+                                    label="Trier"
+                                    icon={ArrowUpDownIcon}
+                                    compactLabel
+                                />
                             </div>
                         </div>
 

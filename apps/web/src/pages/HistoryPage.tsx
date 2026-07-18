@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowUpDownIcon, Book02Icon } from "@hugeicons/core-free-icons";
 import { useHistory } from "@/features/history/hooks/useHistory";
 import type { HistoryEntry, HistorySort } from "@/features/history/types";
 import { NovelCover } from "@/features/novels/components/NovelCover";
+import { SelectMenu, type SelectOption } from "@/components/ui/SelectMenu";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import AppLayout from "@/components/ui/AppLayout";
 
-const SELECT_CLASS =
-    "h-9 rounded-md border border-border bg-input/30 px-2 text-sm text-foreground transition-colors hover:bg-input/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
+const HISTORY_SORT_OPTIONS: SelectOption<HistorySort>[] = [
+    { value: "date", label: "Plus récents" },
+    { value: "novel", label: "Par roman" },
+];
 
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 
@@ -34,8 +38,13 @@ export default function HistoryPage() {
             return next;
         });
     }, [data]);
-    const sortedOptions = useMemo(
-        () => [...novelOptions.entries()].sort((a, b) => a[1].localeCompare(b[1])),
+    const novelFilterOptions = useMemo<SelectOption<string>[]>(
+        () => [
+            { value: "", label: "Tous les romans" },
+            ...[...novelOptions.entries()]
+                .sort((a, b) => a[1].localeCompare(b[1], "fr"))
+                .map(([id, title]) => ({ value: String(id), label: title })),
+        ],
         [novelOptions],
     );
 
@@ -69,28 +78,22 @@ export default function HistoryPage() {
 
                 {/* Tri + filtre par roman */}
                 <div className="mb-6 flex flex-wrap items-center gap-2">
-                    <select
+                    <SelectMenu
                         value={sort}
-                        onChange={(e) => setSort(e.target.value as HistorySort)}
-                        aria-label="Trier l'historique"
-                        className={SELECT_CLASS}
-                    >
-                        <option value="date">Plus récents</option>
-                        <option value="novel">Par roman</option>
-                    </select>
-                    <select
-                        value={novelId ?? ""}
-                        onChange={(e) => setNovelId(e.target.value ? Number(e.target.value) : null)}
-                        aria-label="Filtrer par roman"
-                        className={SELECT_CLASS}
-                    >
-                        <option value="">Tous les romans</option>
-                        {sortedOptions.map(([id, title]) => (
-                            <option key={id} value={id}>
-                                {title}
-                            </option>
-                        ))}
-                    </select>
+                        options={HISTORY_SORT_OPTIONS}
+                        onChange={setSort}
+                        label="Trier l'historique"
+                        icon={ArrowUpDownIcon}
+                        align="start"
+                    />
+                    <SelectMenu
+                        value={novelId != null ? String(novelId) : ""}
+                        options={novelFilterOptions}
+                        onChange={(v) => setNovelId(v ? Number(v) : null)}
+                        label="Filtrer par roman"
+                        icon={Book02Icon}
+                        align="start"
+                    />
                 </div>
 
                 {error ? (

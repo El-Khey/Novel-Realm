@@ -3,15 +3,17 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
     ArrowDown01Icon,
     ArrowRight01Icon,
+    ArrowUpDownIcon,
+    BookOpen01Icon,
     Cancel01Icon,
     Compass01Icon,
-    FilterHorizontalIcon,
     GridViewIcon,
     ListViewIcon,
     Loading03Icon,
     RefreshIcon,
     Search01Icon,
     SearchRemoveIcon,
+    Tag01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
@@ -23,6 +25,7 @@ import { NovelPosterMenu } from "@/components/content/NovelPosterMenu";
 import { NovelCover } from "@/features/novels/components/NovelCover";
 import { NOVEL_STATUS } from "@/features/novels/status";
 import type { Novel } from "@/features/novels/types";
+import { SelectMenu, type SelectOption } from "@/components/ui/SelectMenu";
 import { Reveal } from "@/components/ui/Reveal";
 import { Icon } from "@/components/ui/icon";
 import AppLayout from "@/components/ui/AppLayout";
@@ -35,14 +38,17 @@ type ViewMode = "grid" | "list";
 // Grille Explorer : posters plus grands (max 5 colonnes) et resserrés.
 const GRID_CLASS = "grid grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5";
 
-const SELECT_CLASS =
-    "h-10 cursor-pointer rounded-full border border-border bg-secondary px-4 text-sm font-medium text-foreground outline-none transition-colors hover:bg-accent focus:border-ring/60";
+const STATUS_OPTIONS: SelectOption<StatusFilter>[] = [
+    { value: "", label: "Tous les statuts" },
+    { value: "ONGOING", label: "En cours", dot: "bg-primary" },
+    { value: "COMPLETED", label: "Terminé", dot: "bg-emerald-400" },
+];
 
-const SORT_LABELS: Record<SortOption, string> = {
-    recent: "Plus récents",
-    popularity: "Popularité",
-    title: "Alphabétique (A→Z)",
-};
+const SORT_OPTIONS: SelectOption<SortOption>[] = [
+    { value: "recent", label: "Plus récents" },
+    { value: "popularity", label: "Popularité" },
+    { value: "title", label: "Alphabétique (A→Z)" },
+];
 
 /**
  * Explorer / Catalogue : navigation de tout le catalogue avec recherche,
@@ -119,6 +125,12 @@ export default function ExplorerPage() {
     const activeGenre = genreId != null ? genres?.find((g) => g.id === genreId) ?? null : null;
     const hasFilters = q !== "" || genreId != null || status !== "";
 
+    // « Tous les genres » + un choix par genre, pour le menu de filtre.
+    const genreOptions: SelectOption<string>[] = [
+        { value: "", label: "Tous les genres" },
+        ...(genres ?? []).map((g) => ({ value: String(g.id), label: g.name })),
+    ];
+
     function clearFilters() {
         setQInput("");
         setSearchParams((prev) => {
@@ -153,16 +165,16 @@ export default function ExplorerPage() {
     return (
         <AppLayout>
             {/* ── HERO ─────────────────────────────────────────────────── */}
-            <header className="relative overflow-hidden border-b border-border/60">
+            <header className="relative overflow-hidden">
                 <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
                     <div className="absolute -right-24 -top-32 size-104 rounded-full bg-primary/20 blur-3xl" />
                     <div className="absolute -left-24 top-4 size-72 rounded-full bg-primary/10 blur-3xl" />
                     <div className="absolute inset-0 bg-linear-to-b from-transparent to-background" />
                 </div>
 
-                <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:py-20">
+                <div className="mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16">
                     <Reveal>
-                        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
+                        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8">
                             <div className="max-w-2xl">
                                 <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                                     <Icon icon={Compass01Icon} size={14} strokeWidth={2.5} />
@@ -181,85 +193,65 @@ export default function ExplorerPage() {
                                 </p>
                             </div>
 
-                            <div className="text-right">
-                                <p className="font-heading text-5xl font-extrabold tabular-nums leading-none sm:text-6xl">
-                                    {items === null ? (
-                                        <span className="text-muted-foreground/40">—</span>
-                                    ) : (
-                                        total.toLocaleString("fr-FR")
-                                    )}
-                                </p>
-                                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                                    novels
-                                </p>
-                            </div>
+                            <dl className="flex divide-x divide-border/60">
+                                <HeroStat
+                                    value={items === null ? null : total}
+                                    label="Novels"
+                                    first
+                                />
+                                <HeroStat
+                                    value={genres === null ? null : genres.length}
+                                    label="Genres"
+                                />
+                            </dl>
                         </div>
                     </Reveal>
                 </div>
             </header>
 
-            {/* ── BARRE D'OUTILS (sticky, contenue façon « filtres ») ───── */}
+            {/* ── BARRE D'OUTILS (sticky) ──────────────────────────────── */}
             <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-                    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-card/60 px-3 py-2.5 sm:gap-3 sm:px-4">
-                        <span className="hidden items-center gap-1.5 pr-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:inline-flex">
-                            <Icon icon={FilterHorizontalIcon} size={16} />
-                            Filtres
-                        </span>
-
-                        <select
-                            value={genreId != null ? String(genreId) : ""}
-                            onChange={(e) => setParam("genreId", e.target.value || null)}
-                            aria-label="Filtrer par genre"
-                            className={SELECT_CLASS}
-                        >
-                            <option value="">Tous les genres</option>
-                            {(genres ?? []).map((g) => (
-                                <option key={g.id} value={g.id}>
-                                    {g.name}
-                                </option>
-                            ))}
-                        </select>
-
-                        <select
-                            value={status}
-                            onChange={(e) => setParam("status", e.target.value || null)}
-                            aria-label="Filtrer par statut"
-                            className={SELECT_CLASS}
-                        >
-                            <option value="">Tous les statuts</option>
-                            <option value="ONGOING">En cours</option>
-                            <option value="COMPLETED">Terminé</option>
-                        </select>
-
-                        <select
-                            value={sort}
-                            onChange={(e) =>
-                                setParam("sort", e.target.value === "recent" ? null : e.target.value)
-                            }
-                            aria-label="Trier"
-                            className={SELECT_CLASS}
-                        >
-                            <option value="recent">{SORT_LABELS.recent}</option>
-                            <option value="popularity">{SORT_LABELS.popularity}</option>
-                            <option value="title">{SORT_LABELS.title}</option>
-                        </select>
-
-                        <div className="ml-auto flex items-center gap-2">
-                            <ViewToggle view={view} onChange={setView} />
-                            <div className="relative">
-                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                    <Icon icon={Search01Icon} size={16} />
-                                </span>
-                                <input
-                                    value={qInput}
-                                    onChange={(e) => setQInput(e.target.value)}
-                                    placeholder="Rechercher…"
-                                    aria-label="Rechercher un roman"
-                                    className="h-10 w-36 rounded-full border border-transparent bg-secondary pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring/60 sm:w-52"
-                                />
-                            </div>
+                    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-card/60 p-2">
+                        <div className="relative min-w-48 flex-1">
+                            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                <Icon icon={Search01Icon} size={17} />
+                            </span>
+                            <input
+                                value={qInput}
+                                onChange={(e) => setQInput(e.target.value)}
+                                placeholder="Rechercher un titre, un auteur…"
+                                aria-label="Rechercher un roman"
+                                className="h-10 w-full rounded-xl border border-transparent bg-secondary pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring/60 focus:bg-input"
+                            />
                         </div>
+
+                        <SelectMenu
+                            value={genreId != null ? String(genreId) : ""}
+                            options={genreOptions}
+                            onChange={(v) => setParam("genreId", v || null)}
+                            label="Filtrer par genre"
+                            icon={Tag01Icon}
+                            compactLabel
+                        />
+                        <SelectMenu
+                            value={status}
+                            options={STATUS_OPTIONS}
+                            onChange={(v) => setParam("status", v || null)}
+                            label="Filtrer par statut"
+                            icon={BookOpen01Icon}
+                            compactLabel
+                        />
+                        <SelectMenu
+                            value={sort}
+                            options={SORT_OPTIONS}
+                            onChange={(v) => setParam("sort", v === "recent" ? null : v)}
+                            label="Trier"
+                            icon={ArrowUpDownIcon}
+                            compactLabel
+                        />
+
+                        <ViewToggle view={view} onChange={setView} />
                     </div>
 
                     {/* Chips de filtres actifs */}
@@ -400,13 +392,31 @@ export default function ExplorerPage() {
 
 /* -------------------------------- sous-vues -------------------------------- */
 
+/** Chiffre-clé du hero (aligné sur celui de la Bibliothèque). */
+function HeroStat({ value, label, first }: { value: number | null; label: string; first?: boolean }) {
+    return (
+        <div className={cn("px-6", first && "pl-0")}>
+            <dd className="font-heading text-4xl font-extrabold leading-none tabular-nums sm:text-5xl">
+                {value === null ? (
+                    <span className="text-muted-foreground/40">—</span>
+                ) : (
+                    value.toLocaleString("fr-FR")
+                )}
+            </dd>
+            <dt className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {label}
+            </dt>
+        </div>
+    );
+}
+
 function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode) => void }) {
     const modes: { mode: ViewMode; icon: IconSvgElement; label: string }[] = [
         { mode: "grid", icon: GridViewIcon, label: "Vue grille" },
         { mode: "list", icon: ListViewIcon, label: "Vue liste" },
     ];
     return (
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-secondary p-1">
+        <div className="flex shrink-0 items-center gap-1 rounded-xl bg-secondary p-1">
             {modes.map(({ mode, icon, label }) => (
                 <button
                     key={mode}
@@ -415,13 +425,13 @@ function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode
                     aria-label={label}
                     aria-pressed={view === mode}
                     className={cn(
-                        "grid size-8 place-items-center rounded-full transition-colors",
+                        "grid size-8 place-items-center rounded-lg transition-colors",
                         view === mode
                             ? "bg-background text-foreground shadow"
                             : "text-muted-foreground hover:text-foreground",
                     )}
                 >
-                    <Icon icon={icon} size={18} />
+                    <Icon icon={icon} size={17} />
                 </button>
             ))}
         </div>
