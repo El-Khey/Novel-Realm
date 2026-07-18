@@ -145,11 +145,14 @@ function NovelDetailView({
                 avis doivent rester atteignables sans dérouler toute la liste. */}
             <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm">
                 <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
-                    <div className="inline-flex items-center gap-1 rounded-full bg-secondary p-1">
+                    <div
+                        role="tablist"
+                        aria-label="Contenu du roman"
+                        className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-secondary/70 p-1.5"
+                    >
                         <TabButton
                             icon={LeftToRightListBulletIcon}
                             label="Chapitres"
-                            count={chapters?.length ?? null}
                             active={tab === "chapitres"}
                             onClick={() => setTab("chapitres")}
                         />
@@ -157,6 +160,7 @@ function NovelDetailView({
                             icon={StarIcon}
                             label="Avis"
                             count={novel.ratingCount}
+                            fillIconWhenActive
                             active={tab === "avis"}
                             onClick={() => setTab("avis")}
                         />
@@ -184,42 +188,58 @@ function NovelDetailView({
     );
 }
 
-/** Onglet en pilule : icône + libellé + compteur. */
+/**
+ * Onglet en pilule. Hauteur fixe (h-9) pour que les deux pilules soient
+ * strictement identiques et restent bien contenues dans leur piste.
+ */
 function TabButton({
     icon,
     label,
     count,
     active,
+    fillIconWhenActive,
     onClick,
 }: {
     icon: IconSvgElement;
     label: string;
-    /** null tant que la donnée charge → le compteur est simplement masqué. */
-    count: number | null;
+    /** Compteur optionnel — omis quand l'info est déjà affichée en dessous. */
+    count?: number | null;
     active: boolean;
+    /**
+     * Remplit l'icône quand l'onglet est actif. Réservé aux formes fermées
+     * (l'étoile) : sur une icône de traits, le remplissage empâte le dessin.
+     */
+    fillIconWhenActive?: boolean;
     onClick: () => void;
 }) {
     return (
         <button
             type="button"
+            role="tab"
+            aria-selected={active}
             onClick={onClick}
-            aria-pressed={active}
             className={cn(
-                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                "inline-flex h-9 select-none items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors duration-200",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 active
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                    : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
             )}
         >
-            <Icon icon={icon} size={16} className={cn(active && "fill-current")} />
+            <Icon
+                icon={icon}
+                size={16}
+                strokeWidth={2}
+                className={cn("shrink-0", active && fillIconWhenActive && "fill-current")}
+            />
             {label}
             {count != null && (
                 <span
                     className={cn(
-                        "rounded-full px-1.5 text-xs tabular-nums",
+                        "grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-bold tabular-nums",
                         active
-                            ? "bg-white/20 text-primary-foreground"
-                            : "bg-background/60 text-muted-foreground",
+                            ? "bg-white/25 text-primary-foreground"
+                            : "bg-background/70 text-muted-foreground",
                     )}
                 >
                     {count}
