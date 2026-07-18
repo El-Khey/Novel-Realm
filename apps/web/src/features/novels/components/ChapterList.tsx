@@ -8,7 +8,7 @@ import {
     CheckmarkCircle02Icon,
     CheckmarkSquare01Icon,
     Search01Icon,
-    Square01Icon,
+    SquareIcon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Chapter } from "@/features/novels/types";
@@ -169,7 +169,7 @@ export function ChapterList({
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
                     >
                         <Icon
-                            icon={allSelected ? CheckmarkSquare01Icon : Square01Icon}
+                            icon={allSelected ? CheckmarkSquare01Icon : SquareIcon}
                             size={17}
                             className={allSelected ? "text-primary" : "text-muted-foreground"}
                         />
@@ -268,7 +268,7 @@ function ChapterRow({
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
                     <Icon
-                        icon={isSelected ? CheckmarkSquare01Icon : Square01Icon}
+                        icon={isSelected ? CheckmarkSquare01Icon : SquareIcon}
                         size={18}
                         className={isSelected ? "text-primary" : "text-muted-foreground"}
                     />
