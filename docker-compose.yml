@@ -52,6 +52,8 @@ services:
       # ── Identifiants Google OAuth2 (idem, depuis .env) ───────────────
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # ── Secret de signature JWT (≥ 32 octets, depuis .env) ───────────
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
 

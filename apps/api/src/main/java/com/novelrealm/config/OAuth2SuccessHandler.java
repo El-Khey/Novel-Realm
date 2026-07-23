@@ -47,8 +47,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // Notre logique : retrouver ou créer le compte (réconciliation par email).
         User user = userService.loginWithGoogle(email, name, picture);
 
-        // Créer NOTRE session (le même mécanisme que le login classique).
-        authenticationService.authenticate(user, request, response);
+        // Émettre NOTRE JWT en cookie httpOnly (même mécanisme que le login classique).
+        authenticationService.authenticate(user, response);
 
         // Renvoyer l'utilisateur vers le front, connecté.
         response.sendRedirect(frontendUrl + "/profil");

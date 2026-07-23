@@ -1,0 +1,43 @@
+{
+  "properties": [
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "URL du front web : redirection après login OAuth2 et base des liens front."
+    },
+    {
+      "name": "app.upload-dir",
+      "type": "java.lang.String",
+      "description": "Dossier disque des uploads (avatars, bannières), relatif au dossier de travail de l'app."
+    },
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret HMAC de signature des JWT (HS256). Doit faire au moins 32 octets (256 bits)."
+    },
+    {
+      "name": "app.jwt.expiration-seconds",
+      "type": "java.lang.Long",
+      "description": "Durée de validité d'un JWT, en secondes.",
+      "defaultValue": 86400
+    },
+    {
+      "name": "app.jwt.cookie-name",
+      "type": "java.lang.String",
+      "description": "Nom du cookie httpOnly portant le JWT (transport web).",
+      "defaultValue": "access_token"
+    },
+    {
+      "name": "app.jwt.cookie-secure",
+      "type": "java.lang.Boolean",
+      "description": "Pose le cookie JWT en Secure (transmis seulement en HTTPS). true en prod.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.jwt.cookie-same-site",
+      "type": "java.lang.String",
+      "description": "Attribut SameSite du cookie JWT (Lax en dev même-site, None en prod cross-site).",
+      "defaultValue": "Lax"
+    }
+  ]
+}
