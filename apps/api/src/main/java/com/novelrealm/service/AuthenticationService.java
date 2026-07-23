@@ -6,61 +6,74 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Duration;
 
 /**
- * Responsable de la "plomberie" d'authentification : à partir d'un utilisateur
- * déjà vérifié, crée le SecurityContext et le persiste (session + cookie).
- * Le controller n'a plus à connaître ces détails.
+ * Plomberie d'authentification, désormais <b>stateless</b> : à partir d'un
+ * utilisateur déjà vérifié, émet un JWT (via {@link JwtService}), le pose en
+ * cookie httpOnly (transport web) et le renvoie (transport mobile).
+ * Un seul token, deux transports.
  */
 @Service
 public class AuthenticationService {
 
-    private final SecurityContextHolderStrategy securityContextHolderStrategy =
-            SecurityContextHolder.getContextHolderStrategy();
+    private final JwtService jwtService;
+    private final String cookieName;
+    private final boolean cookieSecure;
+    private final String cookieSameSite;
+    private final long expirationSeconds;
 
-    private final SecurityContextRepository securityContextRepository;
-
-    public AuthenticationService(SecurityContextRepository securityContextRepository) {
-        this.securityContextRepository = securityContextRepository;
+    public AuthenticationService(
+            JwtService jwtService,
+            @Value("${app.jwt.cookie-name}") String cookieName,
+            @Value("${app.jwt.cookie-secure}") boolean cookieSecure,
+            @Value("${app.jwt.cookie-same-site}") String cookieSameSite,
+            @Value("${app.jwt.expiration-seconds}") long expirationSeconds) {
+        this.jwtService = jwtService;
+        this.cookieName = cookieName;
+        this.cookieSecure = cookieSecure;
+        this.cookieSameSite = cookieSameSite;
+        this.expirationSeconds = expirationSeconds;
     }
 
     /**
-     * Marque l'utilisateur comme authentifié pour la requête courante,
-     * puis persiste le contexte → crée la session HTTP et le cookie.
+     * Émet le JWT de l'utilisateur, le pose en cookie httpOnly sur la réponse
+     * (web) et le retourne (mobile).
      */
-    public void authenticate(User user, HttpServletRequest request, HttpServletResponse response) {
-        Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(
-                user.getEmail(), // principal : qui est connecté
-                null, // credentials : on ne garde pas le mot de passe
-                List.of() // autorités/rôles : vide pour l'instant
-        );
-
-        SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-        context.setAuthentication(authentication);
-        securityContextHolderStrategy.setContext(context);
-
-        securityContextRepository.saveContext(context, request, response);
+    public String authenticate(User user, HttpServletResponse response) {
+        String token = jwtService.generate(user.getEmail());
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie(token, expirationSeconds).toString());
+        return token;
     }
-    
+
+    /**
+     * Déconnexion : efface le cookie JWT (web) et vide le contexte. Le client
+     * mobile jette simplement son token. Une éventuelle session résiduelle du
+     * flux OAuth2 Google (web) est invalidée par précaution.
+     */
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        //    Détruire la fiche côté serveur (le casier).
-        //    getSession(false) = "donne-moi la session SI elle existe, n'en crée pas".
-        //    (avec "true" il en créerait une juste pour la détruire → absurde)
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.invalidate();   // la fiche est déchirée. Le ticket ne vaut plus rien.
+            session.invalidate();
         }
+        response.addHeader(HttpHeaders.SET_COOKIE, buildCookie("", 0).toString());
+        SecurityContextHolder.clearContext();
+    }
 
-        // 2. Vider le "présent" (le ThreadLocal) pour la requête courante.
-        securityContextHolderStrategy.clearContext();
-}
+    /** Construit le cookie JWT (maxAge=0 pour l'effacer à la déconnexion). */
+    private ResponseCookie buildCookie(String value, long maxAgeSeconds) {
+        return ResponseCookie.from(cookieName, value)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(Duration.ofSeconds(maxAgeSeconds))
+                .sameSite(cookieSameSite)
+                .build();
+    }
 }

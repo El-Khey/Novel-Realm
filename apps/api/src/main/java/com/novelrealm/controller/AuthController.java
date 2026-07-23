@@ -1,6 +1,7 @@
 package com.novelrealm.controller;
 
 import com.novelrealm.dto.LoginRequest;
+import com.novelrealm.dto.LoginResponse;
 import com.novelrealm.dto.RegisterRequest;
 import com.novelrealm.dto.UserResponse;
 import com.novelrealm.model.User;
@@ -49,18 +50,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request,
-            HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
         // 1. Vérifier les identifiants
         User user = userService.login(request.email(), request.password());
 
-        // 2. Créer la session + le cookie
-        authenticationService.authenticate(user, httpRequest, httpResponse);
+        // 2. Émettre le JWT : cookie httpOnly (web) + token renvoyé dans le body (mobile)
+        String token = authenticationService.authenticate(user, httpResponse);
 
-        return ResponseEntity.ok(userMapper.toOwnResponse(user));
+        return ResponseEntity.ok(new LoginResponse(userMapper.toOwnResponse(user), token));
     }
 
     @PostMapping("/logout")
