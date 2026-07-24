@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.novelrealm.mobile.ui.WelcomeScreen
+import com.novelrealm.mobile.ui.AppRoot
 import com.novelrealm.mobile.ui.theme.NovelRealmTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             NovelRealmTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    WelcomeScreen(modifier = Modifier.padding(innerPadding))
+                    AppRoot(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
