@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -19,6 +20,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // URL de base de l'API. Émulateur → 10.0.2.2 (= localhost de la machine hôte).
+        // TÉLÉPHONE PHYSIQUE : remplacer par l'IP LAN du PC (ex. "http://192.168.1.20:8080/").
+        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/\"")
     }
 
     buildTypes {
@@ -36,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -48,6 +54,16 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // ── #32 : réseau, sérialisation, coroutines, ViewModel Compose ──
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
