@@ -8,12 +8,10 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-/**
- * Endpoints d'authentification (`/api/auth/**`, publics côté back).
- *
- * Note : `register` renvoie l'utilisateur créé **sans token** (201) ; c'est
- * l'`AuthRepository` qui enchaîne un `login` pour obtenir le JWT.
- */**/
+// Endpoints d'authentification (/api/auth/** publics côté back).
+//
+// Note : `register` renvoie l'utilisateur créé « sans token » (201) ; c'est
+// l'AuthRepository qui enchaîne un `login` pour obtenir le JWT.
 interface AuthApi {
 
     @POST("api/auth/register")

@@ -1,4 +1,4 @@
-package com.novelrealm.mobile.ui
+package com.novelrealm.mobile.ui.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,35 +11,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.novelrealm.mobile.ui.ConnState
+import com.novelrealm.mobile.ui.ConnectivityViewModel
+import com.novelrealm.mobile.ui.NovelRealmWordmark
 import com.novelrealm.mobile.ui.theme.NovelRealmTheme
 
-/**
- * Accueil de l'utilisateur **connecté** (#33). Salue par son pseudo et permet de se
- * déconnecter. L'indicateur de connectivité (#32) est conservé : une fois connecté,
- * l'appel `GET /api/novels` part désormais **avec le token** (visible en 200 dans les
- * logs), preuve que l'interceptor Bearer fonctionne. Sera enrichi par la nav (#34).
- */
+// Onglet Profil (#34). Reprend le contenu de l'ancien écran d'accueil #33 : salutation
+// par pseudo, statut de connectivité au backend, et déconnexion. Sera enrichi (avatar,
+// bio, réglages) dans les issues suivantes.
 @Composable
-fun HomeScreen(
+fun ProfileScreen(
     pseudo: String?,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     connectivityViewModel: ConnectivityViewModel = viewModel(),
 ) {
     val conn by connectivityViewModel.state.collectAsState()
-    HomeContent(modifier = modifier, pseudo = pseudo, conn = conn, onLogout = onLogout)
+    ProfileContent(modifier = modifier, pseudo = pseudo, conn = conn, onLogout = onLogout)
 }
 
 @Composable
-private fun HomeContent(
+private fun ProfileContent(
     pseudo: String?,
     conn: ConnState,
     onLogout: () -> Unit,
@@ -87,8 +87,8 @@ private fun HomeContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeScreenPreview() {
+private fun ProfileScreenPreview() {
     NovelRealmTheme {
-        HomeContent(pseudo = "Marwan", conn = ConnState.Reachable, onLogout = {})
+        ProfileContent(pseudo = "Marwan", conn = ConnState.Reachable, onLogout = {})
     }
 }

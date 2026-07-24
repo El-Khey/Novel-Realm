@@ -67,6 +67,10 @@ dependencies {
     // ── #33 : stockage sécurisé du JWT (EncryptedSharedPreferences) ──
     implementation(libs.androidx.security.crypto)
 
+    // ── #34 : navigation à onglets + jeu d'icônes Material complet ──
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

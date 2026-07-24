@@ -4,10 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import com.novelrealm.mobile.ui.AppRoot
 import com.novelrealm.mobile.ui.theme.NovelRealmTheme
 
@@ -17,9 +13,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NovelRealmTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppRoot(modifier = Modifier.padding(innerPadding))
-                }
+                // AppRoot aiguille vers le flux d'auth ou la coquille à onglets (MainScreen),
+                // chacun gérant ses propres insets système → pas de Scaffold ici (éviter le
+                // double Scaffold imbriqué).
+                AppRoot()
             }
         }
     }
