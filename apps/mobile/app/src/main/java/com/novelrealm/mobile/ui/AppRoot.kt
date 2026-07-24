@@ -1,5 +1,6 @@
 package com.novelrealm.mobile.ui
 
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
@@ -12,11 +13,12 @@ import com.novelrealm.mobile.ui.auth.AuthFormState
 import com.novelrealm.mobile.ui.auth.AuthViewModel
 import com.novelrealm.mobile.ui.auth.LoginScreen
 import com.novelrealm.mobile.ui.auth.RegisterScreen
+import com.novelrealm.mobile.ui.main.MainScreen
 
 /**
- * Porte d'entrée de l'app (#33) : un aiguillage minimal en fonction de l'état de
- * session. Connecté → [HomeScreen] ; sinon → le flux d'auth (login ⇄ register).
- * La vraie navigation (pile d'écrans, deep links) viendra avec #34.
+ * Porte d'entrée de l'app : aiguillage selon l'état de session. Connecté →
+ * [MainScreen] (la coquille à onglets, #34) ; sinon → le flux d'auth (login ⇄
+ * register, #33).
  *
  * L'[AuthViewModel] est résolu ici et **partagé** avec les écrans d'auth (même
  * portée que l'Activity), ce qui garde un seul état de session cohérent.
@@ -29,7 +31,7 @@ fun AppRoot(modifier: Modifier = Modifier) {
     val form by authViewModel.form.collectAsState()
 
     if (isAuthenticated) {
-        HomeScreen(
+        MainScreen(
             pseudo = pseudo,
             onLogout = authViewModel::logout,
             modifier = modifier,
@@ -40,7 +42,7 @@ fun AppRoot(modifier: Modifier = Modifier) {
             onLogin = authViewModel::login,
             onRegister = authViewModel::register,
             onClearError = authViewModel::clearError,
-            modifier = modifier,
+            modifier = modifier.systemBarsPadding(),
         )
     }
 }
